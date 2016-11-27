@@ -1,0 +1,24 @@
+version '1'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.5
+
+/*repositories {
+    mavenCentral()
+}*/
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+mainClassName = "com.transportsmr.daogen.GreenDaoGenerator"
+dependencies {
+   // testCompile 'junit:junit:4.11'
+    compile 'org.greenrobot:greendao-generator:3.2.0'
+}

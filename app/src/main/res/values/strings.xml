@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">TransportSmr</string>
+    <string name="action_settings">Settings</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+
+    <!-- splash -->
+    <string name="update_info">Подождите несколько секунд</string>
+    <string name="update">Обновление</string>
+
+    <!-- menu -->
+    <string name="exit">Выход</string>
+    <string name="settings">Настройки</string>
+    <string name="stops">Остановки</string>
+</resources>
