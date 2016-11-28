@@ -37,6 +37,6 @@ public class TransportApp extends Application {
     }
 
     public void finish() {
-        db.close();
+        //db.close();
     }
 }

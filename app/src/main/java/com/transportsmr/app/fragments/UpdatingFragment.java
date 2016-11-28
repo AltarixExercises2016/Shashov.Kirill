@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
+import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.async.ClassifiersUpdateTask;
 import com.transportsmr.app.utils.Constants;
@@ -29,17 +30,7 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
         sp = app.getSharedPreferences(Constants.SHARED_NAME, Context.MODE_PRIVATE);
         setRetainInstance(true);
 
-        listener.onHaveUpdate();
-        if (app.isOnline()) {
-            HashMap<String, String> currentUpdateMap = new HashMap<String, String>();
-            currentUpdateMap.put(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, sp.getString(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, "0"));
-            currentUpdateMap.put(Constants.SHARED_ROUTES_FILENAME, sp.getString(Constants.SHARED_ROUTES_FILENAME, "0"));
-            currentUpdateMap.put(Constants.SHARED_STOPS_FILENAME, sp.getString(Constants.SHARED_STOPS_FILENAME, "0"));
-            updateTask = new ClassifiersUpdateTask(this, app.getDaoSession(), currentUpdateMap);
-            updateTask.execute();
-        } else {
-            listener.onFinishUpdating();
-        }
+        startUpdate();
     }
 
     @Override
@@ -55,17 +46,32 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
 
     @Override
     public void onFinishUpdating(boolean isSuccessful, Map<String, String> lastUpdateMap) {
-        //updateUpdateTime((HashMap<String, String>) lastUpdateMap);
-        if (!isSuccessful) {
+      /*  if (!isSuccessful) {
             listener.onFinishUpdating();
         } else {
-            Toast.makeText(app, "Обновление не удалось", Toast.LENGTH_LONG);
+            Toast.makeText(app, getString(R.string.update_failed), Toast.LENGTH_LONG);
             listener.onFinishUpdating();             //TODO mb restart
+        }*/
+        listener.onFinishUpdating(isSuccessful);
+    }
+
+    public void startUpdate() {
+        listener.onHaveUpdate();
+        if (app.isOnline()) {
+            HashMap<String, String> currentUpdateMap = new HashMap<String, String>();
+            currentUpdateMap.put(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, sp.getString(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, "0"));
+            currentUpdateMap.put(Constants.SHARED_ROUTES_FILENAME, sp.getString(Constants.SHARED_ROUTES_FILENAME, "0"));
+            currentUpdateMap.put(Constants.SHARED_STOPS_FILENAME, sp.getString(Constants.SHARED_STOPS_FILENAME, "0"));
+            updateTask = new ClassifiersUpdateTask(this, app.getDaoSession(), currentUpdateMap);
+            updateTask.execute();
+        } else {
+            listener.onFinishUpdating(false);
         }
     }
 
     public interface OnUpdatingListener {
-        void onFinishUpdating();
+
+        void onFinishUpdating(boolean isSuccessful);
 
         void onHaveUpdate();
     }

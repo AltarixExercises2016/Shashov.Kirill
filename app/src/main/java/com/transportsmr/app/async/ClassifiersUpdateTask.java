@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
         this.daoSession = daoSession;
         this.currentUpdateMap = new HashMap<String, String>(currentUpdateMap);
         this.lastUpdateMap = new HashMap<String, String>();
+        this.isSuccessful = true;
     }
 
     private XmlPullParser downloadXML(String path) throws IOException, XmlPullParserException {
@@ -44,10 +46,9 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
     }
 
     private void parseStops(XmlPullParser parser) throws XmlPullParserException, IOException {
-        StopDao stopDao = daoSession.getStopDao();
-        stopDao.deleteAll();
         Stop stop = null;
         String text = "";
+        ArrayList<Stop>  stops = new ArrayList<Stop>();
         int eventType = parser.getEventType();
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -66,7 +67,7 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
 
                 case XmlPullParser.END_TAG:
                     if (tagname.equalsIgnoreCase("stop")) {
-                        stopDao.insert(stop);
+                        stops.add(stop);
                     } else if (tagname.equalsIgnoreCase("KS_ID")) {
                         stop.setKs_id(text);
                     } else if (tagname.equalsIgnoreCase("title")) {
@@ -113,6 +114,9 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
             eventType = parser.next();
         }
 
+        StopDao stopDao = daoSession.getStopDao();
+        stopDao.deleteAll();
+        stopDao.insertInTx(stops);
     }
 
     private boolean isOldStopsClassifier() {
@@ -178,6 +182,7 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
                 parseStops(downloadXML(Constants.STOPS_CLASSIFIER_URL));
             } catch (Exception e) {
                 isSuccessful = false;
+                lastUpdateMap.put(Constants.SHARED_STOPS_FILENAME, currentUpdateMap.get(Constants.SHARED_STOPS_FILENAME));
             }
         }
         return null;

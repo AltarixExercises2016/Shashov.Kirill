@@ -7,6 +7,8 @@
     <!-- splash -->
     <string name="update_info">Подождите несколько секунд</string>
     <string name="update">Обновление</string>
+    <string name="update_failed">Обновление не удалось</string>
+    <string name="update_again">Попробовать еще раз?</string>
 
     <!-- menu -->
     <string name="exit">Выход</string>
