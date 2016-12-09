@@ -87,7 +87,7 @@ public class SplashScreenActivity extends AppCompatActivity implements UpdatingF
         isDialog = true;
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle(getString(R.string.update_failed));
-        adb.setMessage(getString(R.string.update_info));
+        adb.setMessage(getString(R.string.update_again));
         adb.setCancelable(false);
         adb.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override

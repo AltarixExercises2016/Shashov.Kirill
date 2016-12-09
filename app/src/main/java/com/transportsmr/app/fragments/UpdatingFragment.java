@@ -31,6 +31,7 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
         setRetainInstance(true);
 
         startUpdate();
+        //listener.onFinishUpdating(true);
     }
 
     @Override
@@ -46,12 +47,6 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
 
     @Override
     public void onFinishUpdating(boolean isSuccessful, Map<String, String> lastUpdateMap) {
-      /*  if (!isSuccessful) {
-            listener.onFinishUpdating();
-        } else {
-            Toast.makeText(app, getString(R.string.update_failed), Toast.LENGTH_LONG);
-            listener.onFinishUpdating();             //TODO mb restart
-        }*/
         listener.onFinishUpdating(isSuccessful);
     }
 

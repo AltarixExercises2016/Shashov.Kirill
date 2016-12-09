@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+        <!--<ImageView android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_rowSpan="2"
+                   android:src="@drawable/ic_split"/>-->
+        <TextView
+                android:id="@+id/stop_direction_direction"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:text="text"
+                android:layout_centerVertical="true"
+                android:textColor="@color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        <com.github.ivbaranov.mfb.MaterialFavoriteButton
+                android:id="@+id/stop_direction_favorite"
+                android:layout_alignParentRight="true"
+                app:mfb_animate_favorite="true"
+                app:mfb_animate_unfavorite="false"
+                app:mfb_padding="12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+    </RelativeLayout>
+    <ImageView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:src="@android:drawable/divider_horizontal_bright"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            android:paddingBottom="5dp"
+            android:paddingTop="2dp"/>
+</LinearLayout>

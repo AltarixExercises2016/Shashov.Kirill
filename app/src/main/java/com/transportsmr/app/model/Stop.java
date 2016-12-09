@@ -28,6 +28,7 @@ public class Stop {
     private String infotabloExists;
     private Float latitude;
     private Float longitude;
+    private Boolean favorite;
 
     @Generated(hash = 362110707)
     public Stop() {
@@ -37,8 +38,8 @@ public class Stop {
         this.id = id;
     }
 
-    @Generated(hash = 1670359702)
-    public Stop(Long id, String ks_id, String title, String adjacentStreet, String direction, String cluster, String busesMunicipal, String busesCommercial, String busesPrigorod, String busesSeason, String busesSpecial, String trams, String trolleybuses, String metros, String infotabloExists, Float latitude, Float longitude) {
+    @Generated(hash = 85631562)
+    public Stop(Long id, String ks_id, String title, String adjacentStreet, String direction, String cluster, String busesMunicipal, String busesCommercial, String busesPrigorod, String busesSeason, String busesSpecial, String trams, String trolleybuses, String metros, String infotabloExists, Float latitude, Float longitude, Boolean favorite) {
         this.id = id;
         this.ks_id = ks_id;
         this.title = title;
@@ -56,6 +57,7 @@ public class Stop {
         this.infotabloExists = infotabloExists;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.favorite = favorite;
     }
 
     public Long getId() {
@@ -192,6 +194,14 @@ public class Stop {
 
     public void setLongitude(Float longitude) {
         this.longitude = longitude;
+    }
+
+    public Boolean getFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(Boolean favorite) {
+        this.favorite = favorite;
     }
 
 }

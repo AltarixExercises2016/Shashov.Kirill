@@ -12,10 +12,16 @@ import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.widget.Toast;
+import com.transportsmr.app.adapters.StopsRecyclerAdapter;
 import com.transportsmr.app.fragments.StopsFragment;
 import com.transportsmr.app.model.Stop;
+import com.transportsmr.app.model.StopDao;
+import org.greenrobot.greendao.query.WhereCondition;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity implements StopsFragment.OnFragmentInteractionListener {
@@ -93,13 +99,4 @@ public class MainActivity extends AppCompatActivity implements StopsFragment.OnF
         transaction.commit();
     }
 
-    @Override
-    public String[] onFragmentInteraction(Uri uri) {
-        String[] list = new String[50];
-        List<Stop> stops = app.getDaoSession().getStopDao().loadAll();
-        for (int i = 0; i < 50; i++) {
-            list[i] = stops.get(i).getAdjacentStreet();
-        }
-        return list;
-    }
 }

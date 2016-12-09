@@ -3,6 +3,7 @@ package com.transportsmr.daogen;
 
 import org.greenrobot.greendao.generator.DaoGenerator;
 import org.greenrobot.greendao.generator.Entity;
+import org.greenrobot.greendao.generator.Property;
 import org.greenrobot.greendao.generator.Schema;
 
 /**
@@ -30,12 +31,12 @@ public class GreenDaoGenerator {
         stop.addStringProperty("infotabloExists");
         stop.addFloatProperty("latitude");
         stop.addFloatProperty("longitude");
+        stop.addBooleanProperty("favorite");
 
-       /* Property personId = lease.addLongProperty("personId").getProperty();
-        lease.addToOne(person, personId);
-
-        ToMany personToLease = person.addToMany(lease, personId);
-        personToLease.setName("leases");*/
+        /*Entity favorite = schema.addEntity("Favorite");
+        favorite.addIdProperty();
+        Property ksId = favorite.addLongProperty("stopId").getProperty();
+        favorite.addToOne(stop, ksId);*/
 
         try {
             (new DaoGenerator()).generateAll(schema, "../app/src/main/java");

@@ -10,6 +10,10 @@
     <string name="update_failed">Обновление не удалось</string>
     <string name="update_again">Попробовать еще раз?</string>
 
+    <!-- stops -->
+    <string name="stops_favorite">Любимые</string>
+    <string name="stops_nearest">Ближайшие</string>
+
     <!-- menu -->
     <string name="exit">Выход</string>
     <string name="settings">Настройки</string>

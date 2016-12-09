@@ -39,6 +39,7 @@ public class StopDao extends AbstractDao<Stop, Long> {
         public final static Property InfotabloExists = new Property(14, String.class, "infotabloExists", false, "INFOTABLO_EXISTS");
         public final static Property Latitude = new Property(15, Float.class, "latitude", false, "LATITUDE");
         public final static Property Longitude = new Property(16, Float.class, "longitude", false, "LONGITUDE");
+        public final static Property Favorite = new Property(17, Boolean.class, "favorite", false, "FAVORITE");
     }
 
 
@@ -70,7 +71,8 @@ public class StopDao extends AbstractDao<Stop, Long> {
                 "\"METROS\" TEXT," + // 13: metros
                 "\"INFOTABLO_EXISTS\" TEXT," + // 14: infotabloExists
                 "\"LATITUDE\" REAL," + // 15: latitude
-                "\"LONGITUDE\" REAL);"); // 16: longitude
+                "\"LONGITUDE\" REAL," + // 16: longitude
+                "\"FAVORITE\" INTEGER);"); // 17: favorite
     }
 
     /** Drops the underlying database table. */
@@ -167,6 +169,11 @@ public class StopDao extends AbstractDao<Stop, Long> {
         if (longitude != null) {
             stmt.bindDouble(17, longitude);
         }
+ 
+        Boolean favorite = entity.getFavorite();
+        if (favorite != null) {
+            stmt.bindLong(18, favorite ? 1L: 0L);
+        }
     }
 
     @Override
@@ -257,6 +264,11 @@ public class StopDao extends AbstractDao<Stop, Long> {
         if (longitude != null) {
             stmt.bindDouble(17, longitude);
         }
+ 
+        Boolean favorite = entity.getFavorite();
+        if (favorite != null) {
+            stmt.bindLong(18, favorite ? 1L: 0L);
+        }
     }
 
     @Override
@@ -283,7 +295,8 @@ public class StopDao extends AbstractDao<Stop, Long> {
             cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // metros
             cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // infotabloExists
             cursor.isNull(offset + 15) ? null : cursor.getFloat(offset + 15), // latitude
-            cursor.isNull(offset + 16) ? null : cursor.getFloat(offset + 16) // longitude
+            cursor.isNull(offset + 16) ? null : cursor.getFloat(offset + 16), // longitude
+            cursor.isNull(offset + 17) ? null : cursor.getShort(offset + 17) != 0 // favorite
         );
         return entity;
     }
@@ -307,6 +320,7 @@ public class StopDao extends AbstractDao<Stop, Long> {
         entity.setInfotabloExists(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
         entity.setLatitude(cursor.isNull(offset + 15) ? null : cursor.getFloat(offset + 15));
         entity.setLongitude(cursor.isNull(offset + 16) ? null : cursor.getFloat(offset + 16));
+        entity.setFavorite(cursor.isNull(offset + 17) ? null : cursor.getShort(offset + 17) != 0);
      }
     
     @Override

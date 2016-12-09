@@ -3,16 +3,63 @@
               android:orientation="vertical" android:layout_width="match_parent"
               android:layout_height="wrap_content">
     <android.support.v7.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/cv"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            card_view:cardElevation="0px"
+            card_view:cardBackgroundColor="@color/white"
+            card_view:cardCornerRadius="0dp"
             >
-        <TextView
-                android:id="@+id/tv_recycler_item"
-                android:text="text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="7dp"
-                android:textSize="18sp"/>
+        <GridLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal"
+                    android:padding="10dp"
+                    android:columnCount="1">
+            <!--<ImageView android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_marginLeft="15dp"
+                       android:layout_marginRight="15dp"
+                       android:layout_marginTop="5dp"
+                       android:layout_marginBottom="5dp"
+                       android:layout_rowSpan="2"
+                       android:src="@drawable/ic_compass"/>-->
+            <TextView
+                    android:id="@+id/stopTitle"
+                    android:layout_gravity="center_vertical"
+                    style="@style/TextAppearance.AppCompat.Body2"
+                    android:text="text"
+                    android:paddingTop="5dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            <TextView
+                    android:id="@+id/stop_direction_street"
+                    style="@style/TextAppearance.AppCompat.Caption"
+                    android:text="text"
+                    android:textColor="@color/gray"
+                    android:paddingBottom="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            <ImageView
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:src="@android:drawable/divider_horizontal_bright"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitXY"
+                    android:paddingBottom="5dp"
+                    android:paddingTop="2dp"/>
+            <LinearLayout android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:background="@color/white"
+                          android:id="@+id/stopDirections"
+                          android:orientation="vertical">
+            </LinearLayout>
+        </GridLayout>
     </android.support.v7.widget.CardView>
+
 </LinearLayout>

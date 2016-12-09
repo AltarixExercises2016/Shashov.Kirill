@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by kirill on 27.11.2016.
@@ -48,7 +46,14 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
     private void parseStops(XmlPullParser parser) throws XmlPullParserException, IOException {
         Stop stop = null;
         String text = "";
-        ArrayList<Stop>  stops = new ArrayList<Stop>();
+        StopDao stopDao = daoSession.getStopDao();
+        HashSet<String> favorites = new HashSet<String>();
+        List<Stop> favList = stopDao.queryBuilder().where(StopDao.Properties.Favorite.eq(true)).build().list();
+        for (Stop favStop : favList) {
+            favorites.add(favStop.getKs_id());
+        }
+
+        ArrayList<Stop> stops = new ArrayList<Stop>();
         int eventType = parser.getEventType();
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -70,6 +75,7 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
                         stops.add(stop);
                     } else if (tagname.equalsIgnoreCase("KS_ID")) {
                         stop.setKs_id(text);
+                        stop.setFavorite(favorites.contains(text));
                     } else if (tagname.equalsIgnoreCase("title")) {
                         stop.setTitle(text);
                     } else if (tagname.equalsIgnoreCase("adjacentStreet")) {
@@ -114,7 +120,7 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
             eventType = parser.next();
         }
 
-        StopDao stopDao = daoSession.getStopDao();
+
         stopDao.deleteAll();
         stopDao.insertInTx(stops);
     }

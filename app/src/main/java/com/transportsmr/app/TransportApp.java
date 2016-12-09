@@ -2,6 +2,8 @@ package com.transportsmr.app;
 
 import android.app.Application;
 import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.transportsmr.app.model.DaoMaster;
@@ -34,6 +36,21 @@ public class TransportApp extends Application {
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    public Location getCurrentLocation(){
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (loc == null || !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            } else {
+                loc = null;
+            }
+        }
+
+        return loc;
     }
 
     public void finish() {
