@@ -14,8 +14,14 @@
     <string name="stops_favorite">Любимые</string>
     <string name="stops_nearest">Ближайшие</string>
 
+    <!--settings-->
+    <string name="settings_distance">Радиус поиска остановок в метрах:</string>
+
     <!-- menu -->
     <string name="exit">Выход</string>
     <string name="settings">Настройки</string>
     <string name="stops">Остановки</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

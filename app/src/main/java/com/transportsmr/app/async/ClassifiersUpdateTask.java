@@ -1,6 +1,5 @@
 package com.transportsmr.app.async;
 
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import com.transportsmr.app.model.DaoSession;
 import com.transportsmr.app.model.Stop;

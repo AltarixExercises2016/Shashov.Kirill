@@ -31,7 +31,6 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
         setRetainInstance(true);
 
         startUpdate();
-        //listener.onFinishUpdating(true);
     }
 
     @Override
@@ -39,7 +38,7 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
         super.onActivityCreated(savedInstanceState);
     }
 
-    private void updateUpdateTime(HashMap<String, String> lastUpdateMap) {
+    private void updateUpdateTime(Map<String, String> lastUpdateMap) {
         for (Map.Entry<String, String> entry : lastUpdateMap.entrySet()) {
             sp.edit().putString(entry.getKey(), entry.getValue());
         }
@@ -48,6 +47,7 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
     @Override
     public void onFinishUpdating(boolean isSuccessful, Map<String, String> lastUpdateMap) {
         listener.onFinishUpdating(isSuccessful);
+        //updateUpdateTime(lastUpdateMap); TODO delete comment
     }
 
     public void startUpdate() {

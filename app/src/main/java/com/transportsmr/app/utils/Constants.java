@@ -10,12 +10,16 @@ public class Constants {
     public static final String LAST_UPDATES_URL = "http://tosamara.ru/api/classifiers";
 
 
+    public static final int DEFAULT_DISTANCE = 500;
 
     //SHARED
     public static final String SHARED_NAME = "com.transportsmr.app.sharedPrefs";
     public static final String SHARED_STOPS_FILENAME = "stopsFullDB.xml";
     public static final String SHARED_ROUTES_FILENAME = "routes.xml";
     public static final String SHARED_ROUTES_AND_STOPS_FILENAME = "routesAndStopsCorrespondence.xml";
+    public static final String SHARED_DISTANCE_SEARCH_STOPS = "distance_stops";
     //public static final String SHARED_STOPS_LAST_UPDATE = "stops_last_update";
+
+
 
 }
