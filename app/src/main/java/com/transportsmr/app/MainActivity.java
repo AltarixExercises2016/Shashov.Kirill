@@ -52,13 +52,10 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
             }
         });
 
-
         if (savedInstanceState != null) {
             content = getSupportFragmentManager().getFragment(savedInstanceState, CURRENT_FRAGMENT_KEY);
-            if (savedInstanceState.containsKey(CURRENT_TITLE_KEY)) {
-                getSupportActionBar().setTitle(savedInstanceState.getString(CURRENT_TITLE_KEY));
-            }
         }
+
         setNavigationDrawer();
     }
 
@@ -117,8 +114,16 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
     }
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.containsKey(CURRENT_TITLE_KEY)) {
+            getSupportActionBar().setTitle(savedInstanceState.getString(CURRENT_TITLE_KEY));
+        }
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
-        //super.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
         if (content.isAdded()) {
             getSupportFragmentManager().putFragment(outState, CURRENT_FRAGMENT_KEY, content);
             outState.putString(CURRENT_TITLE_KEY, String.valueOf(getSupportActionBar().getTitle()));

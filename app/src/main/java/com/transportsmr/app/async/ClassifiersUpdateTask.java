@@ -36,6 +36,8 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
     private XmlPullParser downloadXML(String path) throws IOException, XmlPullParserException {
         URL url = new URL(path);
         URLConnection conn = url.openConnection();
+        conn.setConnectTimeout(Constants.NETWORK_TIMEOUT);
+        conn.setReadTimeout(Constants.NETWORK_TIMEOUT);
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         XmlPullParser xpp = factory.newPullParser();
         xpp.setInput(new InputStreamReader(conn.getInputStream()));
@@ -202,5 +204,11 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
 
     public interface UpdateTaskListener {
         void onFinishUpdating(boolean isSuccessful, Map<String, String> lastUpdateMap);
+    }
+
+    @Override
+    protected void onCancelled(Void aVoid) {
+        super.onCancelled(aVoid);
+        listener.onFinishUpdating(false, lastUpdateMap);
     }
 }

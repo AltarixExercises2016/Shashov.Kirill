@@ -9,8 +9,9 @@ public class Constants {
     public static final String ROUTES_CLASSIFIER_URL = "http://tosamara.ru/api/classifiers/routes.xml";
     public static final String LAST_UPDATES_URL = "http://tosamara.ru/api/classifiers";
 
-
     public static final int DEFAULT_DISTANCE = 500;
+    public static final int NETWORK_TIMEOUT = 10000;
+    public static final String TOSAMARA_PASSWORD = "J2QMMls";
 
     //SHARED
     public static final String SHARED_NAME = "com.transportsmr.app.sharedPrefs";

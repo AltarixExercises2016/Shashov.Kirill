@@ -2,7 +2,9 @@ package com.transportsmr.app.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
 import com.transportsmr.app.R;
@@ -47,7 +49,7 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
     @Override
     public void onFinishUpdating(boolean isSuccessful, Map<String, String> lastUpdateMap) {
         listener.onFinishUpdating(isSuccessful);
-        //updateUpdateTime(lastUpdateMap); TODO delete comment
+        //if (isSuccessful) updateUpdateTime(lastUpdateMap); TODO delete comment
     }
 
     public void startUpdate() {
@@ -57,8 +59,7 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
             currentUpdateMap.put(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, sp.getString(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, "0"));
             currentUpdateMap.put(Constants.SHARED_ROUTES_FILENAME, sp.getString(Constants.SHARED_ROUTES_FILENAME, "0"));
             currentUpdateMap.put(Constants.SHARED_STOPS_FILENAME, sp.getString(Constants.SHARED_STOPS_FILENAME, "0"));
-            updateTask = new ClassifiersUpdateTask(this, app.getDaoSession(), currentUpdateMap);
-            updateTask.execute();
+            (new ClassifiersUpdateTask(this, app.getDaoSession(), currentUpdateMap)).execute();
         } else {
             listener.onFinishUpdating(false);
         }
