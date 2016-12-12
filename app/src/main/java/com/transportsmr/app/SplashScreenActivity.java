@@ -21,7 +21,7 @@ public class SplashScreenActivity extends AppCompatActivity implements UpdatingF
     private boolean isUpdating = false;
     private boolean isDialog = false;
     public static final String IS_UPDATING = "isUpdating";
-    public static final String IS_DIALOG = "isDIALOG";
+    public static final String IS_DIALOG = "isDialog";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,6 +34,19 @@ public class SplashScreenActivity extends AppCompatActivity implements UpdatingF
         if (mTaskFragment == null) {
             mTaskFragment = new UpdatingFragment();
             fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
+        }
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (isUpdating) {
+            onHaveUpdate();
+        }
+
+        if (isDialog) {
+            onShowDialog();
         }
     }
 
@@ -53,12 +66,11 @@ public class SplashScreenActivity extends AppCompatActivity implements UpdatingF
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState.getBoolean("IS_UPDATING")) {
+        if (savedInstanceState.getBoolean(IS_UPDATING)) {
             onHaveUpdate();
         }
 
-        if (savedInstanceState.getBoolean("IS_DIALOG")) {
+        if (savedInstanceState.getBoolean(IS_DIALOG)) {
             onShowDialog();
         }
     }
