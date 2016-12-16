@@ -38,4 +38,11 @@
 * `com.transportsmr.app.fragments.ArrivalsFragment` Для просмотра прибытия транспорта для конкретной остановки. Для загрузки информации используется AsyncTask.
 
 
+Скриншоты:
+<img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/1.png" width="250">
+<img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/2.png" width="250">
+<img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/3.png" width="250">
+<img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/4.png" width="250">
+<img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/5.png" width="250">
+
 
