@@ -10,8 +10,6 @@
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/rvItems"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"/>
+                android:layout_height="wrap_content"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

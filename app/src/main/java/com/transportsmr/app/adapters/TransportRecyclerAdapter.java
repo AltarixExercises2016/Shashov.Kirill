@@ -1,6 +1,7 @@
 package com.transportsmr.app.adapters;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,15 +25,19 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     private List<ArrivalTransport> arrival;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView time;
+        private TextView nextStop;
         private TextView nextTime;
         private TextView number;
-        public TextView type;
+        private TextView type;
 
         public ViewHolder(View v) {
             super(v);
             number = (TextView) v.findViewById(R.id.transport_number);
             type = (TextView) v.findViewById(R.id.transport_type);
             nextTime = (TextView) v.findViewById(R.id.transport_next_time);
+            time = (TextView) v.findViewById(R.id.transport_time);
+            nextStop = (TextView) v.findViewById(R.id.transport_next_stop);
         }
 
     }
@@ -53,16 +58,33 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final ArrivalTransport arrivalTransport = arrival.get(position);
+        final List<Transport> transports = arrivalTransport.getTransports();
         holder.number.setText(arrivalTransport.getNumber());
+
+        holder.number.setBackground(ContextCompat.getDrawable(context, getBackgroundFromType(arrivalTransport.getType())));
         holder.type.setText(arrivalTransport.getType());
-        String time = context.getString(R.string.arrival_time_to_next);
-        for (Transport transport: arrivalTransport.getTransports()){
-            time +=  " " + transport.getTime();
+        StringBuilder sb = new StringBuilder(" ");
+
+        for (int i = 0; (i < transports.size()) && (i < 5); i++) {
+            sb.append(" ").append(transports.get(i).getTime()).append(", ");
         }
-        time += " " + context.getString(R.string.arrival_minute);
-        holder.nextTime.setText(time);
+        sb.delete(sb.length() - 2, sb.length() - 1);
+        holder.nextTime.setText(sb.toString());
+        holder.nextStop.setText(transports.get(0).getRemainingLength() + context.getString(R.string.length_to) + transports.get(0).getNextStopName());
+        holder.time.setText(transports.get(0).getTime() + context.getString(R.string.arrival_minute));
     }
 
+    private int getBackgroundFromType(String type){
+        if (type.equals(context.getString(R.string.tram))) {
+            return R.drawable.bg_red;
+        } else if (type.equals(context.getString(R.string.metro))){
+            return R.drawable.bg_gray;
+        } else if (type.equals(context.getString(R.string.troll))){
+            return R.drawable.bg_green;
+        }
+
+        return R.drawable.bg_blue;
+    }
 
     @Override
     public int getItemCount() {

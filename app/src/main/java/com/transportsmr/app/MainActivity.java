@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navView = initNavigationView();
+        NavigationView navView = getNavigationView();
 
         if (savedInstanceState != null) {
             content = getSupportFragmentManager().getFragment(savedInstanceState, CURRENT_FRAGMENT_KEY);
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         }
     }
 
-    private NavigationView initNavigationView() {
+    private NavigationView getNavigationView() {
         NavigationView navView = (NavigationView) findViewById(R.id.navigation);
         navView.setItemIconTintList(null);
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -77,10 +77,10 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
 
                 if (itemId == R.id.stops) {
                     fragment = new StopsFragment();
-                    title = getString(R.string.stops);
+                    title = getTitleForFragment(fragment);
                 } else if (itemId == R.id.settings) {
                     fragment = new SettingsFragment();
-                    title = getString(R.string.settings);
+                    title = getTitleForFragment(fragment);
                 } else if (itemId == R.id.exit) {
                     app.finish();
                     finish();
@@ -101,12 +101,11 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
 
 
     private void openFragment(Fragment fragment, String title, boolean isAddToBackStack) {
-        content = fragment;
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.container, fragment);
         if (title != null) {
             getSupportActionBar().setTitle(title);
         }
+        content = fragment;
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment, CURRENT_FRAGMENT_KEY);
         if (isAddToBackStack) {
             transaction.addToBackStack(null);
         }
@@ -133,6 +132,18 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            getSupportActionBar().setTitle(getTitleForFragment(getSupportFragmentManager().findFragmentById(R.id.container)));
         }
+    }
+
+    private String getTitleForFragment(Fragment fragment){
+        int resource = R.string.app_name;
+        if (fragment instanceof SettingsFragment) {
+            resource = R.string.settings;
+        } else if (fragment instanceof StopsFragment) {
+            resource = R.string.stops;
+        }
+
+        return getString(resource);
     }
 }

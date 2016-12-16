@@ -16,7 +16,8 @@
 
     <!-- arrival-->
     <string name="arrival_time_to_next">Через</string>
-    <string name="arrival_minute">минут</string>
+    <string name="arrival_minute">" мин."</string>
+    <string name="arrival_minutes">" минут"</string>
 
     <!--settings-->
     <string name="settings_distance">Радиус поиска остановок в метрах:</string>
@@ -27,5 +28,9 @@
     <string name="stops">Остановки</string>
     <string name="navigation_drawer_open">open</string>
     <string name="navigation_drawer_close">close</string>
+    <string name="length_to">"м. до "</string>
+    <string name="troll">Троллейбус</string>
+    <string name="metro">Метро</string>
+    <string name="tram">Трамвай</string>
 
 </resources>
