@@ -132,11 +132,15 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-            getSupportActionBar().setTitle(getTitleForFragment(getSupportFragmentManager().findFragmentById(R.id.container)));
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+            getSupportActionBar().setTitle(getTitleForFragment(fragment));
+            if (fragment instanceof OnBackPressedListener) { //TODO :(((
+                ((OnBackPressedListener) fragment).onBackPressed();
+            }
         }
     }
 
-    private String getTitleForFragment(Fragment fragment){
+    private String getTitleForFragment(Fragment fragment) {
         int resource = R.string.app_name;
         if (fragment instanceof SettingsFragment) {
             resource = R.string.settings;
@@ -145,5 +149,9 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         }
 
         return getString(resource);
+    }
+
+    public interface OnBackPressedListener {
+        void onBackPressed();
     }
 }

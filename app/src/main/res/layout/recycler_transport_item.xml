@@ -66,7 +66,7 @@
                 android:layout_height="wrap_content"/>
         <TextView
                 android:id="@+id/transport_next_time"
-                style="@style/TextAppearance.AppCompat.Caption"
+                style="@style/TextAppearance.AppCompat.Body1"
                 android:text="text"
                 android:textColor="@color/darkblue2"
                 android:textStyle="bold"

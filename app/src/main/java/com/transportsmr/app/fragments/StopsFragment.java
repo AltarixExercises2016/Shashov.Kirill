@@ -8,11 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.transportsmr.app.MainActivity;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.adapters.StopsPagerAdapter;
 
-public class StopsFragment extends Fragment {
+public class StopsFragment extends Fragment implements MainActivity.OnBackPressedListener{
     public static final String SELECTED_TAB_KEY = "selected_tab";
     private TransportApp app;
     private TabLayout tabLayout;
@@ -24,11 +25,12 @@ public class StopsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         app = (TransportApp) getActivity().getApplication();
-        setRetainInstance(true);
     }
 
+    public void updateFavoriteList() {
+        stopsPagerAdapter.updateFavoriteList();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,5 +65,10 @@ public class StopsFragment extends Fragment {
         if (tabLayout != null) {
             outState.putInt(SELECTED_TAB_KEY, tabLayout.getSelectedTabPosition());
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        stopsPagerAdapter.updateFavoriteList();
     }
 }

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.model.Stop;
@@ -43,8 +41,8 @@ public class StopsPagerAdapter extends PagerAdapter implements StopsRecyclerAdap
         SharedPreferences sPref = app.getSharedPreferences(Constants.SHARED_NAME, Context.MODE_PRIVATE);
         distance = sPref.getInt(Constants.SHARED_DISTANCE_SEARCH_STOPS, Constants.DEFAULT_DISTANCE);
 
-        favoriteStopsWithDirections = new ArrayList<StopsRecyclerAdapter.StopWithDirections>();
-        nearestStopsWithDirections = new ArrayList<StopsRecyclerAdapter.StopWithDirections>();
+        favoriteStopsWithDirections = new ArrayList<>();
+        nearestStopsWithDirections = new ArrayList<>();
 
 
         nearestAdapter = new StopsRecyclerAdapter((StopsRecyclerAdapter.StopClickListener) this.context, this, nearestStopsWithDirections);
@@ -56,10 +54,14 @@ public class StopsPagerAdapter extends PagerAdapter implements StopsRecyclerAdap
         updateStops(false);
     }
 
+    public void updateFavoriteList(){
+        updateStops(true);
+    }
+
     @Override
     public Object instantiateItem(ViewGroup collection, final int position) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.stops_pager_litem, collection, false);
+        ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.stops_pager_item, collection, false);
 
         RecyclerView recyclerView = (RecyclerView) layout.findViewById(R.id.rvItems);
         final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) layout.findViewById(R.id.refresh);
@@ -154,7 +156,7 @@ public class StopsPagerAdapter extends PagerAdapter implements StopsRecyclerAdap
     }
 
     private List<StopsRecyclerAdapter.StopWithDirections> getFavoriteStops() {
-        List<StopsRecyclerAdapter.StopWithDirections> directionsList = new ArrayList<StopsRecyclerAdapter.StopWithDirections>();
+        List<StopsRecyclerAdapter.StopWithDirections> directionsList = new ArrayList<>();
         List<Stop> stops = app.getDaoSession().getStopDao().queryBuilder().where(StopDao.Properties.Favorite.eq(true), new WhereCondition.StringCondition("1 GROUP BY TITLE, ADJACENT_STREET")).list();
         //favoriteStopsWithDirections.clear();
 
@@ -169,7 +171,7 @@ public class StopsPagerAdapter extends PagerAdapter implements StopsRecyclerAdap
 
 
     private List<StopsRecyclerAdapter.StopWithDirections> getNearestStops() {
-        List<StopsRecyclerAdapter.StopWithDirections> directionsList = new ArrayList<StopsRecyclerAdapter.StopWithDirections>();
+        List<StopsRecyclerAdapter.StopWithDirections> directionsList = new ArrayList<>();
         Location location = app.getCurrentLocation();
         List<Stop> stops = app.getDaoSession().getStopDao().queryBuilder().where(new WhereCondition.StringCondition("1 GROUP BY TITLE, ADJACENT_STREET")).list();
 

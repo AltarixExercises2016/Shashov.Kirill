@@ -79,7 +79,7 @@ public class ArrivalsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        LinearLayout view = (LinearLayout) inflater.inflate(R.layout.fragment_arrivals, container, false);
+        View view = inflater.inflate(R.layout.fragment_arrivals, container, false);
 
         TextView stopTitle = (TextView) view.findViewById(R.id.stop_direction_title);
         stopTitle.setText(stop.getTitle());
@@ -101,41 +101,36 @@ public class ArrivalsFragment extends Fragment {
         final RecyclerView transportRecycler = (RecyclerView) view.findViewById(R.id.rvItems);
         transportRecycler.setLayoutManager(new LinearLayoutManager(context));
         transportRecycler.setAdapter(transportAdapter);
+        transportRecycler.setNestedScrollingEnabled(false);
         final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                (new DownloadArrivalForStopTask() {
-
-                    @Override
-                    public void onPost(List<ArrivalTransport> arrival) {
-                        transports.clear();
-                        transports.addAll(arrival);
-                        transportAdapter.notifyDataSetChanged();
-                        swipeRefreshLayout.setRefreshing(false);
-                        emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
-                    }
-                }).execute(stop.getKs_id());
+                (createDownloadToTransportsTask(swipeRefreshLayout, emptyView)).execute(stop.getKs_id());
             }
         });
 
         if (transports.isEmpty()) {
-            (new DownloadArrivalForStopTask() {
-                @Override
-                protected void onPreExecute() {
-                    swipeRefreshLayout.setRefreshing(true);
-                }
-
-                @Override
-                public void onPost(List<ArrivalTransport> arrival) {
-                    transports.addAll(arrival);
-                    transportAdapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
-                    emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
-                }
-            }).execute(stop.getKs_id());
+            (createDownloadToTransportsTask(swipeRefreshLayout, emptyView)).execute(stop.getKs_id());
         }
         return view;
+    }
+
+    private DownloadArrivalForStopTask createDownloadToTransportsTask(final SwipeRefreshLayout swipeRefreshLayout, final View emptyView){
+        return new DownloadArrivalForStopTask() {
+            @Override
+            protected void onPreExecute() {
+                swipeRefreshLayout.setRefreshing(true);
+            }
+            @Override
+            public void onPost(List<ArrivalTransport> arrival) {
+                transports.clear();
+                transports.addAll(arrival);
+                transportAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+                emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
+            }
+        };
     }
 
     @Override
