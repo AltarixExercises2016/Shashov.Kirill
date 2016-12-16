@@ -97,6 +97,7 @@ public class ArrivalsFragment extends Fragment {
             }
         });
 
+        final TextView emptyView = (TextView) view.findViewById(R.id.empty_view);
         final RecyclerView transportRecycler = (RecyclerView) view.findViewById(R.id.rvItems);
         transportRecycler.setLayoutManager(new LinearLayoutManager(context));
         transportRecycler.setAdapter(transportAdapter);
@@ -112,6 +113,7 @@ public class ArrivalsFragment extends Fragment {
                         transports.addAll(arrival);
                         transportAdapter.notifyDataSetChanged();
                         swipeRefreshLayout.setRefreshing(false);
+                        emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
                     }
                 }).execute(stop.getKs_id());
             }
@@ -129,6 +131,7 @@ public class ArrivalsFragment extends Fragment {
                     transports.addAll(arrival);
                     transportAdapter.notifyDataSetChanged();
                     swipeRefreshLayout.setRefreshing(false);
+                    emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
                 }
             }).execute(stop.getKs_id());
         }

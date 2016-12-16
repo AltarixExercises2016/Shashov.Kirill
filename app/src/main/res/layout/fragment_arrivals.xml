@@ -57,11 +57,22 @@
                     android:layout_alignParentRight="true"
                     app:mfb_animate_favorite="true"
                     app:mfb_animate_unfavorite="false"
+                    app:mfb_color="white"
                     app:mfb_padding="12"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
         </RelativeLayout>
     </FrameLayout>
+    <TextView
+            android:id="@+id/empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:gravity="center_horizontal"
+            android:visibility="gone"
+            style="@style/TextAppearance.AppCompat.Body1"
+            android:padding="10dp"
+            android:text="@string/no_data_available" />
     <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/refresh"
             android:layout_width="match_parent"
@@ -69,7 +80,6 @@
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/rvItems"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="wrap_content"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>
