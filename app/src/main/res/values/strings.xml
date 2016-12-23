@@ -32,6 +32,8 @@
     <string name="troll">Троллейбус</string>
     <string name="metro">Метро</string>
     <string name="tram">Трамвай</string>
+    <string name="bus">Автобус</string>
+    <string name="allbus">Автобус</string>
     <string name="no_data_available">Информация о прибытии отсутствует</string>
 
 </resources>

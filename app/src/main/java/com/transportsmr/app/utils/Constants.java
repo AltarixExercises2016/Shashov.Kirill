@@ -13,6 +13,8 @@ public class Constants {
     public static final int NETWORK_TIMEOUT = 10000;
     public static final String TOSAMARA_PASSWORD = "J2QMMls";
 
+    public static final int UPDATE_TRANSPORT_DELAY = 45000;
+
     //SHARED
     public static final String SHARED_NAME = "com.transportsmr.app.sharedPrefs";
     public static final String SHARED_STOPS_FILENAME = "stopsFullDB.xml";

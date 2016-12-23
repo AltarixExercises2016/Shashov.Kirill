@@ -6,6 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
@@ -15,31 +17,22 @@ import com.transportsmr.app.model.Stop;
 import com.transportsmr.app.model.Transport;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by kirill on 12.12.2016.
  */
-public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecyclerAdapter.ViewHolder> {
+public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecyclerAdapter.ViewHolder> implements Filterable {
     private Context context;
     private List<ArrivalTransport> arrival;
+    private Filter transportFilter;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView time;
-        private TextView nextStop;
-        private TextView nextTime;
-        private TextView number;
-        private TextView type;
-
-        public ViewHolder(View v) {
-            super(v);
-            number = (TextView) v.findViewById(R.id.transport_number);
-            type = (TextView) v.findViewById(R.id.transport_type);
-            nextTime = (TextView) v.findViewById(R.id.transport_next_time);
-            time = (TextView) v.findViewById(R.id.transport_time);
-            nextStop = (TextView) v.findViewById(R.id.transport_next_stop);
-        }
-
+    @Override
+    public Filter getFilter() {
+        if(transportFilter == null)
+            transportFilter = new TransportFilter(this, arrival);
+        return transportFilter;
     }
 
     public TransportRecyclerAdapter(Context context, List<ArrivalTransport> dataset) {
@@ -89,5 +82,65 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     @Override
     public int getItemCount() {
         return arrival.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView time;
+        private TextView nextStop;
+        private TextView nextTime;
+        private TextView number;
+        private TextView type;
+
+        public ViewHolder(View v) {
+            super(v);
+            number = (TextView) v.findViewById(R.id.transport_number);
+            type = (TextView) v.findViewById(R.id.transport_type);
+            nextTime = (TextView) v.findViewById(R.id.transport_next_time);
+            time = (TextView) v.findViewById(R.id.transport_time);
+            nextStop = (TextView) v.findViewById(R.id.transport_next_stop);
+        }
+
+    }
+
+    public static class TransportFilter extends Filter {
+
+        private final TransportRecyclerAdapter adapter;
+
+        private final List<ArrivalTransport> originalList;
+
+        private final List<ArrivalTransport> filteredList;
+
+        private TransportFilter(TransportRecyclerAdapter adapter, List<ArrivalTransport> originalList) {
+            super();
+            this.adapter = adapter;
+            this.originalList = new LinkedList<>(originalList);
+            this.filteredList = new ArrayList<>();
+        }
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            filteredList.clear();
+            final FilterResults results = new FilterResults();
+
+            if (constraint.length() == 0) {
+                filteredList.addAll(originalList);
+            } else {
+                for (final ArrivalTransport transport : originalList) {
+                    if (constraint.toString().contains(transport.getType())) {
+                        filteredList.add(transport);
+                    }
+                }
+            }
+            results.values = filteredList;
+            results.count = filteredList.size();
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            adapter.arrival.clear();
+            adapter.arrival.addAll((ArrayList<ArrivalTransport>) results.values);
+            adapter.notifyDataSetChanged();
+        }
     }
 }

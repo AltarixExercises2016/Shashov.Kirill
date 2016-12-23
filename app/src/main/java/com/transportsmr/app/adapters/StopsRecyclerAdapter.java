@@ -1,5 +1,6 @@
 package com.transportsmr.app.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.transportsmr.app.R;
+import com.transportsmr.app.fragments.NearestStopsFragment;
 import com.transportsmr.app.model.Stop;
 
 import java.util.ArrayList;
@@ -24,9 +26,10 @@ import java.util.Map;
  */
 public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdapter.ViewHolder> {
     private boolean isFavorite;
-    private FavoriteUpdaterListener listener;
-    private StopClickListener context;
-    private ArrayList<StopWithDirections> stopsWithDirections;
+    private FavoriteUpdaterListener favoriteChangeListener;
+    private Context context;
+    private List<StopWithDirections> stopsWithDirections;
+    private StopClickListener stopClickListener;
 
     public static class StopWithDirections {
         private String title;
@@ -72,11 +75,18 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
 
     }
 
-    public StopsRecyclerAdapter(StopClickListener context, FavoriteUpdaterListener listener, ArrayList<StopWithDirections> dataset) {
+    public StopsRecyclerAdapter(Context context, List<StopWithDirections> dataset) {
         stopsWithDirections = dataset;
         this.context = context;
-        this.listener = listener;
         isFavorite = false;
+    }
+
+    public void setOnStopClickListener(StopClickListener stopClickListener) {
+        this.stopClickListener = stopClickListener;
+    }
+
+    public void setOnFavoriteChangeListener(FavoriteUpdaterListener favoriteChangeListener) {
+        this.favoriteChangeListener = favoriteChangeListener;
     }
 
     public void setFavorite(boolean favorite) {
@@ -102,7 +112,8 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
             stopDirectionTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    context.onStopClick(stopDirection);
+                    if (stopClickListener != null)
+                        stopClickListener.onStopClick(stopDirection);
                 }
             });
             MaterialFavoriteButton fav = ((MaterialFavoriteButton) ll.findViewById(R.id.stop_direction_favorite));
@@ -121,7 +132,8 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
                                     holder.stopDirections.removeView(ll);
                                 }
                             }
-                            listener.setFavorite(stopDirection, favorite, isFavorite);
+                            if (favoriteChangeListener != null)
+                                favoriteChangeListener.setFavorite(stopDirection, favorite);
                         }
                     });
             holder.stopDirections.addView(ll);
@@ -142,7 +154,7 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
     }
 
     public interface FavoriteUpdaterListener {
-        void setFavorite(Stop stopDirection, boolean favorite, boolean isNearestTab);
+        void setFavorite(Stop stopDirection, boolean favorite);
     }
 
     public interface StopClickListener {

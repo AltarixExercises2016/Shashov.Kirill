@@ -1,23 +1,29 @@
 package com.transportsmr.app.fragments;
 
+import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.*;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.transportsmr.app.MainActivity;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
-import com.transportsmr.app.adapters.StopsPagerAdapter;
+import com.transportsmr.app.adapters.StopsRecyclerAdapter;
+import com.transportsmr.app.fragments.base.BaseStopsRecyclerFragment;
+import com.transportsmr.app.model.Stop;
 
-public class StopsFragment extends Fragment implements MainActivity.OnBackPressedListener{
-    public static final String SELECTED_TAB_KEY = "selected_tab";
-    private TransportApp app;
+public class StopsFragment extends Fragment implements StopsRecyclerAdapter.FavoriteUpdaterListener {
     private TabLayout tabLayout;
     private StopsPagerAdapter stopsPagerAdapter;
+    private Activity context;
 
     public StopsFragment() {
     }
@@ -25,11 +31,9 @@ public class StopsFragment extends Fragment implements MainActivity.OnBackPresse
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app = (TransportApp) getActivity().getApplication();
-    }
 
-    public void updateFavoriteList() {
-        stopsPagerAdapter.updateFavoriteList();
+        context = getActivity();
+        stopsPagerAdapter = new StopsPagerAdapter(getChildFragmentManager(), context.getApplication());
     }
 
     @Override
@@ -40,35 +44,67 @@ public class StopsFragment extends Fragment implements MainActivity.OnBackPresse
         //neatest / favorite list
         tabLayout = (TabLayout) view.findViewById(R.id.stops_tabs);
         ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        if (stopsPagerAdapter == null) {
-            stopsPagerAdapter = new StopsPagerAdapter(getActivity(), app);
-        }
         viewPager.setAdapter(stopsPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
         return view;
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if ((savedInstanceState != null) && (savedInstanceState.containsKey(SELECTED_TAB_KEY))) {
-            tabLayout.getTabAt(savedInstanceState.getInt(SELECTED_TAB_KEY)).select();
-        } else {
-            tabLayout.getTabAt(0).select();
+    public void setFavorite(Stop stopDirection, boolean favorite) {
+        if (stopsPagerAdapter != null) {
+            stopsPagerAdapter.onFavoriteChanged();
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (tabLayout != null) {
-            outState.putInt(SELECTED_TAB_KEY, tabLayout.getSelectedTabPosition());
-        }
-    }
 
-    @Override
-    public void onBackPressed() {
-        stopsPagerAdapter.updateFavoriteList();
+    public static class StopsPagerAdapter extends FragmentPagerAdapter {
+        public static final int NEAREST_TAB_POSITION = 0;
+        private final Application app;
+        private BaseStopsRecyclerFragment favoriteFragment;
+        private BaseStopsRecyclerFragment nearestFragment;
+
+        public StopsPagerAdapter(FragmentManager fm, Application app) {
+            super(fm);
+            this.app = app;
+
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+
+            return (position == NEAREST_TAB_POSITION) ?
+                    (nearestFragment = new NearestStopsFragment())
+                    : (favoriteFragment = new FavoriteStopsFragment());
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            BaseStopsRecyclerFragment fragment = (BaseStopsRecyclerFragment) super.instantiateItem(container, position);
+            if (position == NEAREST_TAB_POSITION)
+                nearestFragment = fragment;
+            else
+                favoriteFragment = fragment;
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return (position == NEAREST_TAB_POSITION) ? app.getString(R.string.stops_nearest) : app.getString(R.string.stops_favorite);
+        }
+
+        public void onFavoriteChanged() {
+            if (nearestFragment != null) {
+                nearestFragment.onFavoriteChanged();
+            }
+
+            if (favoriteFragment != null) {
+                favoriteFragment.onFavoriteChanged();
+            }
+        }
     }
 }

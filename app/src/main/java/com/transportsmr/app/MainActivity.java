@@ -1,8 +1,6 @@
 package com.transportsmr.app;
 
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -10,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import com.transportsmr.app.adapters.StopsRecyclerAdapter;
@@ -19,18 +16,29 @@ import com.transportsmr.app.fragments.SettingsFragment;
 import com.transportsmr.app.fragments.StopsFragment;
 import com.transportsmr.app.model.Stop;
 
+import java.io.Serializable;
 
-public class MainActivity extends AppCompatActivity implements StopsRecyclerAdapter.StopClickListener {
-    public static final String CURRENT_FRAGMENT_KEY = "content";
+
+public class MainActivity extends AppCompatActivity implements StopsRecyclerAdapter.StopClickListener, StopsRecyclerAdapter.FavoriteUpdaterListener {
+    //public static final String CURRENT_FRAGMENT_KEY = "content";
     public static final String CURRENT_TITLE_KEY = "title";
     private TransportApp app;
-    private Fragment content;
+    //private Fragment content;
     private DrawerLayout drawerLayout;
+    private static final String FRAGMENT_RIGHT = "FRAGMENT_RIGHT";
+    private static final String FRAGMENT_LEFT = "FRAGMENT_LEFT";
+    private static final String LAST_FRAGMENT_KEY = "LAST_FRAGMENT_KEY";
+    private static final String LAST_ARRIVAL_KEY = "LAST_ARRIVAL_KEY";
+    private static final String LAST_ARRIVAL_FILTER_KEY = "LAST_ARRIVAL_FILTER_KEY";
+    private String lastContainerKey;
+    private String lastArrival = "";
+    private NavigationView navView;
+    private Serializable arrivalFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(getResources().getIdentifier("main_layout", "layout", getPackageName())); //R.layout.activity_main));
 
         app = (TransportApp) getApplication();
         //AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -56,17 +64,43 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
 
         NavigationView navView = getNavigationView();
 
-        if (savedInstanceState != null) {
-            content = getSupportFragmentManager().getFragment(savedInstanceState, CURRENT_FRAGMENT_KEY);
-            openFragment(content, savedInstanceState.containsKey(CURRENT_TITLE_KEY) ? savedInstanceState.getString(CURRENT_TITLE_KEY) : null, false);
+        if ((savedInstanceState != null)) {
+            //content = getSupportFragmentManager().getFragment(savedInstanceState, CURRENT_FRAGMENT_KEY);\
+            String title = savedInstanceState.containsKey(CURRENT_TITLE_KEY) ? savedInstanceState.getString(CURRENT_TITLE_KEY) : null;
+            lastArrival = savedInstanceState.containsKey(LAST_ARRIVAL_KEY) ? savedInstanceState.getString(LAST_ARRIVAL_KEY) : null;
+            arrivalFilter = savedInstanceState.containsKey(LAST_ARRIVAL_FILTER_KEY) ? savedInstanceState.getSerializable(LAST_ARRIVAL_FILTER_KEY) : null;
+            if (hasTwoPanels()) {
+                Fragment left = getSupportFragmentManager().findFragmentByTag(FRAGMENT_LEFT);
+                Fragment right = getSupportFragmentManager().findFragmentByTag(FRAGMENT_RIGHT);
+
+                if (left != null) {
+                    openFragment(left, title, false);
+                } else {
+                    openStops();
+                }
+                if (right != null && (right instanceof ArrivalsFragment)) {
+                    openFragment(ArrivalsFragment.newInstance(lastArrival, arrivalFilter), title, true);
+                }
+            } else {
+                lastContainerKey = savedInstanceState.getString(LAST_FRAGMENT_KEY);
+                Fragment lastFragment = getSupportFragmentManager().findFragmentByTag(lastContainerKey);
+
+                if (lastFragment != null) {
+                    if (lastFragment instanceof ArrivalsFragment) {
+                        lastFragment = ArrivalsFragment.newInstance(lastArrival, arrivalFilter);
+                    }
+                    openFragment(lastFragment, title, false);
+                } else {
+                    openStops();
+                }
+            }
         } else {
-            navView.setCheckedItem(R.id.stops);
-            openFragment(new StopsFragment(), getString(R.string.stops), false);
+            openStops();
         }
     }
 
     private NavigationView getNavigationView() {
-        NavigationView navView = (NavigationView) findViewById(R.id.navigation);
+        navView = (NavigationView) findViewById(R.id.navigation);
         navView.setItemIconTintList(null);
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -77,21 +111,17 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
 
                 if (itemId == R.id.stops) {
                     fragment = new StopsFragment();
-                    title = getTitleForFragment(fragment);
                 } else if (itemId == R.id.settings) {
                     fragment = new SettingsFragment();
-                    title = getTitleForFragment(fragment);
                 } else if (itemId == R.id.exit) {
                     app.finish();
                     finish();
                 }
-
                 if (fragment != null) {
-                    openFragment(fragment, title, false);
+                    openFragment(fragment, getTitleForFragment(fragment), false);
                     drawerLayout.closeDrawers();
                     return true;
                 }
-
                 return false;
             }
         });
@@ -99,31 +129,46 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         return navView;
     }
 
+    private void openStops() {
+        navView.setCheckedItem(R.id.stops);
+        openFragment(new StopsFragment(), getString(R.string.stops), false);
+    }
 
-    private void openFragment(Fragment fragment, String title, boolean isAddToBackStack) {
+    private void openFragment(Fragment fragment, String title, boolean isRightContainer) {
         if (title != null) {
             getSupportActionBar().setTitle(title);
         }
-        content = fragment;
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment, CURRENT_FRAGMENT_KEY);
-        if (isAddToBackStack) {
+
+        lastContainerKey = isRightContainer ? FRAGMENT_RIGHT : FRAGMENT_LEFT;
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction().replace(isRightContainer ? R.id.containerRight : R.id.container, fragment, fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT);
+        if (fragment instanceof ArrivalsFragment) {
             transaction.addToBackStack(null);
         }
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (content.isAdded()) {
-            getSupportFragmentManager().putFragment(outState, CURRENT_FRAGMENT_KEY, content);
-            outState.putString(CURRENT_TITLE_KEY, String.valueOf(getSupportActionBar().getTitle()));
+        outState.putString(CURRENT_TITLE_KEY, String.valueOf(getSupportActionBar().getTitle()));
+        outState.putString(LAST_FRAGMENT_KEY, lastContainerKey);
+        outState.putString(LAST_ARRIVAL_KEY, lastArrival);
+        Fragment arrivals = getSupportFragmentManager().findFragmentByTag(FRAGMENT_RIGHT);
+        if (arrivals != null) {
+            if (((ArrivalsFragment) arrivals).getFilter() != null)
+                outState.putSerializable(LAST_ARRIVAL_FILTER_KEY, ((ArrivalsFragment) arrivals).getFilter());
         }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onStopClick(Stop stopDirection) {
-        openFragment(ArrivalsFragment.newInstance(stopDirection.getKs_id()), stopDirection.getTitle(), true);
+        ArrivalsFragment fragment = ArrivalsFragment.newInstance(lastArrival = stopDirection.getKs_id());
+        fragment.setFavoriteChangeListener(this);
+        openFragment(fragment, stopDirection.getTitle(), hasTwoPanels());
+    }
+
+    private boolean hasTwoPanels() {
+        return getResources().getBoolean(R.bool.has_two_panes);
     }
 
     @Override
@@ -131,11 +176,14 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (hasTwoPanels()) {
+                return;
+            }
+
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
-            getSupportActionBar().setTitle(getTitleForFragment(fragment));
-            if (fragment instanceof OnBackPressedListener) { //TODO :(((
-                ((OnBackPressedListener) fragment).onBackPressed();
+            if (fragment instanceof ArrivalsFragment) {
+                super.onBackPressed();
+                getSupportActionBar().setTitle(getTitleForFragment(getSupportFragmentManager().findFragmentById(R.id.container)));
             }
         }
     }
@@ -149,6 +197,21 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         }
 
         return getString(resource);
+    }
+
+    @Override
+    public void setFavorite(Stop stopDirection, boolean favorite) {
+        stopDirection.setFavorite(favorite);
+        app.getDaoSession().getStopDao().update(stopDirection);
+        Fragment left = getSupportFragmentManager().findFragmentByTag(FRAGMENT_LEFT);
+        Fragment right = getSupportFragmentManager().findFragmentByTag(FRAGMENT_RIGHT);
+        if (left instanceof StopsRecyclerAdapter.FavoriteUpdaterListener) {
+            ((StopsRecyclerAdapter.FavoriteUpdaterListener) left).setFavorite(stopDirection, favorite);
+        }
+
+        if (right instanceof StopsRecyclerAdapter.FavoriteUpdaterListener) {
+            ((StopsRecyclerAdapter.FavoriteUpdaterListener) right).setFavorite(stopDirection, favorite);
+        }
     }
 
     public interface OnBackPressedListener {

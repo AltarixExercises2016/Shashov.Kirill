@@ -1,31 +1,48 @@
-<android.support.v4.widget.SwipeRefreshLayout
+<RelativeLayout android:layout_height="match_parent"
+              android:layout_width="match_parent"
+              xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/refresh"
+        android:layout_above="@+id/filters"
+        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="fill_parent">
-    <android.support.v4.widget.NestedScrollView
+
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="fill_parent"
             android:background="@color/white">
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="vertical">
-            <FrameLayout android:id="@+id/arrival_header"
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content">
-                <ImageView android:layout_width="match_parent"
-                           android:layout_height="100dp"
-                           android:src="@drawable/city"
-                           android:scaleType="centerCrop"/>
-                <RelativeLayout android:layout_width="match_parent"
-                                android:layout_height="match_parent">
-                    <LinearLayout android:layout_width="match_parent"
-                                  android:layout_height="wrap_content"
-                                  android:layout_centerVertical="true"
-                                  android:orientation="vertical"
-                                  android:padding="10dp">
-                        <TextView
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <FrameLayout
+                    android:id="@+id/arrival_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:src="@drawable/city"
+                        android:scaleType="centerCrop"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical"
+                            android:padding="10dp">
+
+                            <TextView
                                 android:id="@+id/stop_direction_title"
                                 style="@style/TextAppearance.AppCompat.Body1"
                                 android:text="text"
@@ -36,7 +53,8 @@
                                 android:textAllCaps="true"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
-                        <TextView
+
+                            <TextView
                                 android:id="@+id/stop_direction_direction"
                                 style="@style/TextAppearance.AppCompat.Body1"
                                 android:text="text"
@@ -47,7 +65,8 @@
                                 android:textColor="@color/white"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
-                        <TextView
+
+                            <TextView
                                 android:id="@+id/stop_direction_street"
                                 style="@style/TextAppearance.AppCompat.Body1"
                                 android:text="text"
@@ -57,8 +76,9 @@
                                 android:textColor="@color/white"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
-                    </LinearLayout>
-                    <com.github.ivbaranov.mfb.MaterialFavoriteButton
+                        </LinearLayout>
+
+                        <com.github.ivbaranov.mfb.MaterialFavoriteButton
                             android:id="@+id/stop_direction_favorite"
                             android:layout_alignParentRight="true"
                             app:mfb_animate_favorite="true"
@@ -67,9 +87,10 @@
                             app:mfb_padding="12"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
-                </RelativeLayout>
-            </FrameLayout>
-            <TextView
+                    </RelativeLayout>
+                </FrameLayout>
+
+                <TextView
                     android:id="@+id/empty_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -79,11 +100,59 @@
                     style="@style/TextAppearance.AppCompat.Body1"
                     android:padding="10dp"
                     android:text="@string/no_data_available"/>
-            <android.support.v7.widget.RecyclerView
+
+                <android.support.v7.widget.RecyclerView
                     android:id="@+id/rvItems"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-        </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
-</android.support.v4.widget.SwipeRefreshLayout>
+                    android:layout_height="match_parent"/>
+            </LinearLayout>
+        </android.support.v4.widget.NestedScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <TableLayout
+        android:id="@+id/filters"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:padding="10dp"
+        android:stretchColumns="*"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="4dp">
+
+        <TableRow>
+            <CheckBox
+                android:id="@+id/arrival_filter_bus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="true"
+                android:button="@drawable/bus_button"/>
+
+            <CheckBox
+                android:id="@+id/arrival_filter_tram"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="true"
+                android:button="@drawable/tram_button"/>
+
+            <CheckBox
+                android:id="@+id/arrival_filter_trolleybus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="true"
+                android:button="@drawable/trolleybus_button"/>
+
+            <CheckBox
+                android:id="@+id/arrival_filter_metro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="true"
+                android:button="@drawable/metro_button"/>
+        </TableRow>
+    </TableLayout>
+</RelativeLayout>
