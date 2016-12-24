@@ -1,5 +1,6 @@
 package com.transportsmr.app.fragments;
 
+import com.transportsmr.app.FavoriteUpdaterListener;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.adapters.StopsRecyclerAdapter;
 import com.transportsmr.app.fragments.base.BaseStopsRecyclerFragment;
@@ -17,9 +18,9 @@ public class FavoriteStopsFragment extends BaseStopsRecyclerFragment {
 
     @Override
     protected void initRecyclerAdapter(StopsRecyclerAdapter recyclerAdapter) {
-        if (getParentFragment() != null) {
+        if (getActivity() != null) {
             try {
-                recyclerAdapter.setOnFavoriteChangeListener((StopsRecyclerAdapter.FavoriteUpdaterListener) getActivity());
+                recyclerAdapter.setOnFavoriteChangeListener((FavoriteUpdaterListener) getActivity());
             } catch (ClassCastException ex) {
                 throw new ClassCastException(getActivity().toString()
                         + " must implement StopsRecyclerAdapter.FavoriteUpdaterListener");

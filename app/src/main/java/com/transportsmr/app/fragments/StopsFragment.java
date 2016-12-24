@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
+import com.transportsmr.app.FavoriteUpdaterListener;
 import com.transportsmr.app.MainActivity;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
@@ -20,7 +21,7 @@ import com.transportsmr.app.adapters.StopsRecyclerAdapter;
 import com.transportsmr.app.fragments.base.BaseStopsRecyclerFragment;
 import com.transportsmr.app.model.Stop;
 
-public class StopsFragment extends Fragment implements StopsRecyclerAdapter.FavoriteUpdaterListener {
+public class StopsFragment extends Fragment implements FavoriteUpdaterListener {
     private TabLayout tabLayout;
     private StopsPagerAdapter stopsPagerAdapter;
     private Activity context;

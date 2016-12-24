@@ -18,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
+import com.transportsmr.app.FavoriteUpdaterListener;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.adapters.StopsRecyclerAdapter;
@@ -31,7 +32,7 @@ import com.transportsmr.app.utils.Constants;
 import java.io.Serializable;
 import java.util.*;
 
-public class ArrivalsFragment extends Fragment implements StopsRecyclerAdapter.FavoriteUpdaterListener {
+public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListener {
     private static final String STOP_KS_ID = "stopKsId";
     private static final String FILTER_STATE = "FILTER_STATE";
     private List<ArrivalTransport> transports;
@@ -47,7 +48,7 @@ public class ArrivalsFragment extends Fragment implements StopsRecyclerAdapter.F
     private final String LIST_STATE_KEY = "list";
     private RecyclerView transportRecyclerView;
     private MaterialFavoriteButton fav;
-    private StopsRecyclerAdapter.FavoriteUpdaterListener favoriteChangeListener;
+    private FavoriteUpdaterListener favoriteChangeListener;
 
 
     public static ArrivalsFragment newInstance(String stopKsId) {
@@ -269,7 +270,7 @@ public class ArrivalsFragment extends Fragment implements StopsRecyclerAdapter.F
         }
     }
 
-    public void setFavoriteChangeListener(StopsRecyclerAdapter.FavoriteUpdaterListener favoriteChangeListener) {
+    public void setFavoriteChangeListener(FavoriteUpdaterListener favoriteChangeListener) {
         this.favoriteChangeListener = favoriteChangeListener;
     }
 

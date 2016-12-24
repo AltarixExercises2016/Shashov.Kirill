@@ -19,7 +19,7 @@ import com.transportsmr.app.model.Stop;
 import java.io.Serializable;
 
 
-public class MainActivity extends AppCompatActivity implements StopsRecyclerAdapter.StopClickListener, StopsRecyclerAdapter.FavoriteUpdaterListener {
+public class MainActivity extends AppCompatActivity implements StopsRecyclerAdapter.StopClickListener, FavoriteUpdaterListener {
     //public static final String CURRENT_FRAGMENT_KEY = "content";
     public static final String CURRENT_TITLE_KEY = "title";
     private TransportApp app;
@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                String title = "";
                 Fragment fragment = null;
                 int itemId = menuItem.getItemId();
 
@@ -138,13 +137,13 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         if (title != null) {
             getSupportActionBar().setTitle(title);
         }
-
-        lastContainerKey = isRightContainer ? FRAGMENT_RIGHT : FRAGMENT_LEFT;
+        String containerKey = lastContainerKey;
+        lastContainerKey = fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT;
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction().replace(isRightContainer ? R.id.containerRight : R.id.container, fragment, fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT);
-        if (fragment instanceof ArrivalsFragment) {
+        if ((lastContainerKey.equals(FRAGMENT_RIGHT)) && (containerKey != null) && !(containerKey.equals(FRAGMENT_RIGHT))) {  //TODO bad code
             transaction.addToBackStack(null);
         }
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
     }
 
     @Override
@@ -183,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
             if (fragment instanceof ArrivalsFragment) {
                 super.onBackPressed();
+                lastContainerKey = FRAGMENT_LEFT;
                 getSupportActionBar().setTitle(getTitleForFragment(getSupportFragmentManager().findFragmentById(R.id.container)));
             }
         }
@@ -205,12 +205,12 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         app.getDaoSession().getStopDao().update(stopDirection);
         Fragment left = getSupportFragmentManager().findFragmentByTag(FRAGMENT_LEFT);
         Fragment right = getSupportFragmentManager().findFragmentByTag(FRAGMENT_RIGHT);
-        if (left instanceof StopsRecyclerAdapter.FavoriteUpdaterListener) {
-            ((StopsRecyclerAdapter.FavoriteUpdaterListener) left).setFavorite(stopDirection, favorite);
+        if (left instanceof FavoriteUpdaterListener) {
+            ((FavoriteUpdaterListener) left).setFavorite(stopDirection, favorite);
         }
 
-        if (right instanceof StopsRecyclerAdapter.FavoriteUpdaterListener) {
-            ((StopsRecyclerAdapter.FavoriteUpdaterListener) right).setFavorite(stopDirection, favorite);
+        if (right instanceof FavoriteUpdaterListener) {
+            ((FavoriteUpdaterListener) right).setFavorite(stopDirection, favorite);
         }
     }
 

@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
+import com.transportsmr.app.FavoriteUpdaterListener;
 import com.transportsmr.app.R;
 import com.transportsmr.app.fragments.NearestStopsFragment;
 import com.transportsmr.app.model.Stop;
@@ -151,10 +152,6 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
     @Override
     public int getItemCount() {
         return stopsWithDirections.size();
-    }
-
-    public interface FavoriteUpdaterListener {
-        void setFavorite(Stop stopDirection, boolean favorite);
     }
 
     public interface StopClickListener {
