@@ -45,4 +45,11 @@
 <img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/4.png" width="250">
 <img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/5.png" width="250">
 
+###25.12.2016
+* Добавлен двухпанельный интерфейс для планшетов, срабатывает для `w820dp`
+* Добавлены фильтры по типу транспорта при просмотре прибытия. Нигде не сохраняются.
+* Добавлен полнотекстовый поиск остановок по названию улицы и самой остановки. Для поддержки версий андроида в таблицу остановок были добавлены столбцы, дублирующие информацию в нижнем регистре.
 
+
+<img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/6.png" width="500">
+<img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/7.png" width="500">
