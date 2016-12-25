@@ -2,17 +2,17 @@
 
 
     <style name="NoActionBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
-
+        <item name="android:dropDownListViewStyle">@style/myDropDownListViewStyle</item>
     </style>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <!--<style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowActionBar">false</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">#2196F3</item>
         <item name="colorPrimaryDark">#1976D2</item>
-        <item name="android:textColorPrimary">#ffffff</item>
-    </style>
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>-->
 
 
     <style name="FloaterTextAppearance" parent="android:TextAppearance.Small">
@@ -23,5 +23,9 @@
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="myDropDownListViewStyle" parent="Widget.AppCompat.ListView">
+        <item name="android:background">@color/white</item>
     </style>
 </resources>

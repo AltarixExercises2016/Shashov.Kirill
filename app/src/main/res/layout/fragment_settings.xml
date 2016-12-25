@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:background="@color/backgr1"
-              android:padding="10dp"
-              android:layout_height="match_parent">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@color/white" android:padding="10dp">
-    <TextView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:background="@color/backgr1"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/card_left_right_margin"
+        android:layout_marginRight="@dimen/card_left_right_margin"
+        android:layout_marginTop="@dimen/card_left_right_margin"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:padding="10dp">
+
+        <TextView
             android:id="@+id/stop_direction_direction"
             style="@style/TextAppearance.AppCompat.Body1"
             android:text="@string/settings_distance"
             android:textColor="@color/black"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+            android:layout_height="wrap_content" />
+
+        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
             android:id="@+id/distanceSeekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,7 +33,7 @@
             app:dsb_indicatorColor="@color/white"
             app:dsb_progressColor="@color/blue"
             app:dsb_trackColor="@color/gray"
-            app:dsb_indicatorTextAppearance="@style/FloaterTextAppearance"/>
+            app:dsb_indicatorTextAppearance="@style/FloaterTextAppearance" />
     </LinearLayout>
 
 </LinearLayout>

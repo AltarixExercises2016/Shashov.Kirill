@@ -25,21 +25,23 @@ public class StopDao extends AbstractDao<Stop, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Ks_id = new Property(1, String.class, "ks_id", false, "KS_ID");
         public final static Property Title = new Property(2, String.class, "title", false, "TITLE");
-        public final static Property AdjacentStreet = new Property(3, String.class, "adjacentStreet", false, "ADJACENT_STREET");
-        public final static Property Direction = new Property(4, String.class, "direction", false, "DIRECTION");
-        public final static Property Cluster = new Property(5, String.class, "cluster", false, "CLUSTER");
-        public final static Property BusesMunicipal = new Property(6, String.class, "busesMunicipal", false, "BUSES_MUNICIPAL");
-        public final static Property BusesCommercial = new Property(7, String.class, "busesCommercial", false, "BUSES_COMMERCIAL");
-        public final static Property BusesPrigorod = new Property(8, String.class, "busesPrigorod", false, "BUSES_PRIGOROD");
-        public final static Property BusesSeason = new Property(9, String.class, "busesSeason", false, "BUSES_SEASON");
-        public final static Property BusesSpecial = new Property(10, String.class, "busesSpecial", false, "BUSES_SPECIAL");
-        public final static Property Trams = new Property(11, String.class, "trams", false, "TRAMS");
-        public final static Property Trolleybuses = new Property(12, String.class, "trolleybuses", false, "TROLLEYBUSES");
-        public final static Property Metros = new Property(13, String.class, "metros", false, "METROS");
-        public final static Property InfotabloExists = new Property(14, String.class, "infotabloExists", false, "INFOTABLO_EXISTS");
-        public final static Property Latitude = new Property(15, Float.class, "latitude", false, "LATITUDE");
-        public final static Property Longitude = new Property(16, Float.class, "longitude", false, "LONGITUDE");
-        public final static Property Favorite = new Property(17, Boolean.class, "favorite", false, "FAVORITE");
+        public final static Property Title_lc = new Property(3, String.class, "title_lc", false, "TITLE_LC");
+        public final static Property AdjacentStreet = new Property(4, String.class, "adjacentStreet", false, "ADJACENT_STREET");
+        public final static Property AdjacentStreet_lc = new Property(5, String.class, "adjacentStreet_lc", false, "ADJACENT_STREET_LC");
+        public final static Property Direction = new Property(6, String.class, "direction", false, "DIRECTION");
+        public final static Property Cluster = new Property(7, String.class, "cluster", false, "CLUSTER");
+        public final static Property BusesMunicipal = new Property(8, String.class, "busesMunicipal", false, "BUSES_MUNICIPAL");
+        public final static Property BusesCommercial = new Property(9, String.class, "busesCommercial", false, "BUSES_COMMERCIAL");
+        public final static Property BusesPrigorod = new Property(10, String.class, "busesPrigorod", false, "BUSES_PRIGOROD");
+        public final static Property BusesSeason = new Property(11, String.class, "busesSeason", false, "BUSES_SEASON");
+        public final static Property BusesSpecial = new Property(12, String.class, "busesSpecial", false, "BUSES_SPECIAL");
+        public final static Property Trams = new Property(13, String.class, "trams", false, "TRAMS");
+        public final static Property Trolleybuses = new Property(14, String.class, "trolleybuses", false, "TROLLEYBUSES");
+        public final static Property Metros = new Property(15, String.class, "metros", false, "METROS");
+        public final static Property InfotabloExists = new Property(16, String.class, "infotabloExists", false, "INFOTABLO_EXISTS");
+        public final static Property Latitude = new Property(17, Float.class, "latitude", false, "LATITUDE");
+        public final static Property Longitude = new Property(18, Float.class, "longitude", false, "LONGITUDE");
+        public final static Property Favorite = new Property(19, Boolean.class, "favorite", false, "FAVORITE");
     }
 
 
@@ -58,21 +60,23 @@ public class StopDao extends AbstractDao<Stop, Long> {
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"KS_ID\" TEXT," + // 1: ks_id
                 "\"TITLE\" TEXT," + // 2: title
-                "\"ADJACENT_STREET\" TEXT," + // 3: adjacentStreet
-                "\"DIRECTION\" TEXT," + // 4: direction
-                "\"CLUSTER\" TEXT," + // 5: cluster
-                "\"BUSES_MUNICIPAL\" TEXT," + // 6: busesMunicipal
-                "\"BUSES_COMMERCIAL\" TEXT," + // 7: busesCommercial
-                "\"BUSES_PRIGOROD\" TEXT," + // 8: busesPrigorod
-                "\"BUSES_SEASON\" TEXT," + // 9: busesSeason
-                "\"BUSES_SPECIAL\" TEXT," + // 10: busesSpecial
-                "\"TRAMS\" TEXT," + // 11: trams
-                "\"TROLLEYBUSES\" TEXT," + // 12: trolleybuses
-                "\"METROS\" TEXT," + // 13: metros
-                "\"INFOTABLO_EXISTS\" TEXT," + // 14: infotabloExists
-                "\"LATITUDE\" REAL," + // 15: latitude
-                "\"LONGITUDE\" REAL," + // 16: longitude
-                "\"FAVORITE\" INTEGER);"); // 17: favorite
+                "\"TITLE_LC\" TEXT," + // 3: title_lc
+                "\"ADJACENT_STREET\" TEXT," + // 4: adjacentStreet
+                "\"ADJACENT_STREET_LC\" TEXT," + // 5: adjacentStreet_lc
+                "\"DIRECTION\" TEXT," + // 6: direction
+                "\"CLUSTER\" TEXT," + // 7: cluster
+                "\"BUSES_MUNICIPAL\" TEXT," + // 8: busesMunicipal
+                "\"BUSES_COMMERCIAL\" TEXT," + // 9: busesCommercial
+                "\"BUSES_PRIGOROD\" TEXT," + // 10: busesPrigorod
+                "\"BUSES_SEASON\" TEXT," + // 11: busesSeason
+                "\"BUSES_SPECIAL\" TEXT," + // 12: busesSpecial
+                "\"TRAMS\" TEXT," + // 13: trams
+                "\"TROLLEYBUSES\" TEXT," + // 14: trolleybuses
+                "\"METROS\" TEXT," + // 15: metros
+                "\"INFOTABLO_EXISTS\" TEXT," + // 16: infotabloExists
+                "\"LATITUDE\" REAL," + // 17: latitude
+                "\"LONGITUDE\" REAL," + // 18: longitude
+                "\"FAVORITE\" INTEGER);"); // 19: favorite
     }
 
     /** Drops the underlying database table. */
@@ -100,79 +104,89 @@ public class StopDao extends AbstractDao<Stop, Long> {
             stmt.bindString(3, title);
         }
  
+        String title_lc = entity.getTitle_lc();
+        if (title_lc != null) {
+            stmt.bindString(4, title_lc);
+        }
+ 
         String adjacentStreet = entity.getAdjacentStreet();
         if (adjacentStreet != null) {
-            stmt.bindString(4, adjacentStreet);
+            stmt.bindString(5, adjacentStreet);
+        }
+ 
+        String adjacentStreet_lc = entity.getAdjacentStreet_lc();
+        if (adjacentStreet_lc != null) {
+            stmt.bindString(6, adjacentStreet_lc);
         }
  
         String direction = entity.getDirection();
         if (direction != null) {
-            stmt.bindString(5, direction);
+            stmt.bindString(7, direction);
         }
  
         String cluster = entity.getCluster();
         if (cluster != null) {
-            stmt.bindString(6, cluster);
+            stmt.bindString(8, cluster);
         }
  
         String busesMunicipal = entity.getBusesMunicipal();
         if (busesMunicipal != null) {
-            stmt.bindString(7, busesMunicipal);
+            stmt.bindString(9, busesMunicipal);
         }
  
         String busesCommercial = entity.getBusesCommercial();
         if (busesCommercial != null) {
-            stmt.bindString(8, busesCommercial);
+            stmt.bindString(10, busesCommercial);
         }
  
         String busesPrigorod = entity.getBusesPrigorod();
         if (busesPrigorod != null) {
-            stmt.bindString(9, busesPrigorod);
+            stmt.bindString(11, busesPrigorod);
         }
  
         String busesSeason = entity.getBusesSeason();
         if (busesSeason != null) {
-            stmt.bindString(10, busesSeason);
+            stmt.bindString(12, busesSeason);
         }
  
         String busesSpecial = entity.getBusesSpecial();
         if (busesSpecial != null) {
-            stmt.bindString(11, busesSpecial);
+            stmt.bindString(13, busesSpecial);
         }
  
         String trams = entity.getTrams();
         if (trams != null) {
-            stmt.bindString(12, trams);
+            stmt.bindString(14, trams);
         }
  
         String trolleybuses = entity.getTrolleybuses();
         if (trolleybuses != null) {
-            stmt.bindString(13, trolleybuses);
+            stmt.bindString(15, trolleybuses);
         }
  
         String metros = entity.getMetros();
         if (metros != null) {
-            stmt.bindString(14, metros);
+            stmt.bindString(16, metros);
         }
  
         String infotabloExists = entity.getInfotabloExists();
         if (infotabloExists != null) {
-            stmt.bindString(15, infotabloExists);
+            stmt.bindString(17, infotabloExists);
         }
  
         Float latitude = entity.getLatitude();
         if (latitude != null) {
-            stmt.bindDouble(16, latitude);
+            stmt.bindDouble(18, latitude);
         }
  
         Float longitude = entity.getLongitude();
         if (longitude != null) {
-            stmt.bindDouble(17, longitude);
+            stmt.bindDouble(19, longitude);
         }
  
         Boolean favorite = entity.getFavorite();
         if (favorite != null) {
-            stmt.bindLong(18, favorite ? 1L: 0L);
+            stmt.bindLong(20, favorite ? 1L: 0L);
         }
     }
 
@@ -195,79 +209,89 @@ public class StopDao extends AbstractDao<Stop, Long> {
             stmt.bindString(3, title);
         }
  
+        String title_lc = entity.getTitle_lc();
+        if (title_lc != null) {
+            stmt.bindString(4, title_lc);
+        }
+ 
         String adjacentStreet = entity.getAdjacentStreet();
         if (adjacentStreet != null) {
-            stmt.bindString(4, adjacentStreet);
+            stmt.bindString(5, adjacentStreet);
+        }
+ 
+        String adjacentStreet_lc = entity.getAdjacentStreet_lc();
+        if (adjacentStreet_lc != null) {
+            stmt.bindString(6, adjacentStreet_lc);
         }
  
         String direction = entity.getDirection();
         if (direction != null) {
-            stmt.bindString(5, direction);
+            stmt.bindString(7, direction);
         }
  
         String cluster = entity.getCluster();
         if (cluster != null) {
-            stmt.bindString(6, cluster);
+            stmt.bindString(8, cluster);
         }
  
         String busesMunicipal = entity.getBusesMunicipal();
         if (busesMunicipal != null) {
-            stmt.bindString(7, busesMunicipal);
+            stmt.bindString(9, busesMunicipal);
         }
  
         String busesCommercial = entity.getBusesCommercial();
         if (busesCommercial != null) {
-            stmt.bindString(8, busesCommercial);
+            stmt.bindString(10, busesCommercial);
         }
  
         String busesPrigorod = entity.getBusesPrigorod();
         if (busesPrigorod != null) {
-            stmt.bindString(9, busesPrigorod);
+            stmt.bindString(11, busesPrigorod);
         }
  
         String busesSeason = entity.getBusesSeason();
         if (busesSeason != null) {
-            stmt.bindString(10, busesSeason);
+            stmt.bindString(12, busesSeason);
         }
  
         String busesSpecial = entity.getBusesSpecial();
         if (busesSpecial != null) {
-            stmt.bindString(11, busesSpecial);
+            stmt.bindString(13, busesSpecial);
         }
  
         String trams = entity.getTrams();
         if (trams != null) {
-            stmt.bindString(12, trams);
+            stmt.bindString(14, trams);
         }
  
         String trolleybuses = entity.getTrolleybuses();
         if (trolleybuses != null) {
-            stmt.bindString(13, trolleybuses);
+            stmt.bindString(15, trolleybuses);
         }
  
         String metros = entity.getMetros();
         if (metros != null) {
-            stmt.bindString(14, metros);
+            stmt.bindString(16, metros);
         }
  
         String infotabloExists = entity.getInfotabloExists();
         if (infotabloExists != null) {
-            stmt.bindString(15, infotabloExists);
+            stmt.bindString(17, infotabloExists);
         }
  
         Float latitude = entity.getLatitude();
         if (latitude != null) {
-            stmt.bindDouble(16, latitude);
+            stmt.bindDouble(18, latitude);
         }
  
         Float longitude = entity.getLongitude();
         if (longitude != null) {
-            stmt.bindDouble(17, longitude);
+            stmt.bindDouble(19, longitude);
         }
  
         Boolean favorite = entity.getFavorite();
         if (favorite != null) {
-            stmt.bindLong(18, favorite ? 1L: 0L);
+            stmt.bindLong(20, favorite ? 1L: 0L);
         }
     }
 
@@ -282,21 +306,23 @@ public class StopDao extends AbstractDao<Stop, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // ks_id
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // title
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // adjacentStreet
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // direction
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // cluster
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // busesMunicipal
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // busesCommercial
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // busesPrigorod
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // busesSeason
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // busesSpecial
-            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // trams
-            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // trolleybuses
-            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // metros
-            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // infotabloExists
-            cursor.isNull(offset + 15) ? null : cursor.getFloat(offset + 15), // latitude
-            cursor.isNull(offset + 16) ? null : cursor.getFloat(offset + 16), // longitude
-            cursor.isNull(offset + 17) ? null : cursor.getShort(offset + 17) != 0 // favorite
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // title_lc
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // adjacentStreet
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // adjacentStreet_lc
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // direction
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // cluster
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // busesMunicipal
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // busesCommercial
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // busesPrigorod
+            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // busesSeason
+            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // busesSpecial
+            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // trams
+            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // trolleybuses
+            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // metros
+            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // infotabloExists
+            cursor.isNull(offset + 17) ? null : cursor.getFloat(offset + 17), // latitude
+            cursor.isNull(offset + 18) ? null : cursor.getFloat(offset + 18), // longitude
+            cursor.isNull(offset + 19) ? null : cursor.getShort(offset + 19) != 0 // favorite
         );
         return entity;
     }
@@ -306,21 +332,23 @@ public class StopDao extends AbstractDao<Stop, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setKs_id(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setTitle(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setAdjacentStreet(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setDirection(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setCluster(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setBusesMunicipal(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setBusesCommercial(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setBusesPrigorod(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setBusesSeason(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setBusesSpecial(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
-        entity.setTrams(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
-        entity.setTrolleybuses(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
-        entity.setMetros(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
-        entity.setInfotabloExists(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
-        entity.setLatitude(cursor.isNull(offset + 15) ? null : cursor.getFloat(offset + 15));
-        entity.setLongitude(cursor.isNull(offset + 16) ? null : cursor.getFloat(offset + 16));
-        entity.setFavorite(cursor.isNull(offset + 17) ? null : cursor.getShort(offset + 17) != 0);
+        entity.setTitle_lc(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setAdjacentStreet(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setAdjacentStreet_lc(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setDirection(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setCluster(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setBusesMunicipal(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setBusesCommercial(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setBusesPrigorod(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setBusesSeason(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
+        entity.setBusesSpecial(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
+        entity.setTrams(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
+        entity.setTrolleybuses(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
+        entity.setMetros(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
+        entity.setInfotabloExists(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
+        entity.setLatitude(cursor.isNull(offset + 17) ? null : cursor.getFloat(offset + 17));
+        entity.setLongitude(cursor.isNull(offset + 18) ? null : cursor.getFloat(offset + 18));
+        entity.setFavorite(cursor.isNull(offset + 19) ? null : cursor.getShort(offset + 19) != 0);
      }
     
     @Override

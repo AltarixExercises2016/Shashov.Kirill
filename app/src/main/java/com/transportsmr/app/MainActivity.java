@@ -19,7 +19,7 @@ import com.transportsmr.app.model.Stop;
 import java.io.Serializable;
 
 
-public class MainActivity extends AppCompatActivity implements StopsRecyclerAdapter.StopClickListener, FavoriteUpdaterListener {
+public class MainActivity extends AppCompatActivity implements StopsRecyclerAdapter.OnStopClickListener, FavoriteUpdaterListener {
     //public static final String CURRENT_FRAGMENT_KEY = "content";
     public static final String CURRENT_TITLE_KEY = "title";
     private TransportApp app;
@@ -137,6 +137,11 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         if (title != null) {
             getSupportActionBar().setTitle(title);
         }
+
+        if (fragment instanceof StopsFragment) {
+            ((StopsFragment) fragment).setOnStopClickListener(MainActivity.this);
+        }
+
         String containerKey = lastContainerKey;
         lastContainerKey = fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT;
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction().replace(isRightContainer ? R.id.containerRight : R.id.container, fragment, fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT);
@@ -160,10 +165,15 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
     }
 
     @Override
-    public void onStopClick(Stop stopDirection) {
-        ArrivalsFragment fragment = ArrivalsFragment.newInstance(lastArrival = stopDirection.getKs_id());
+    public void onStopClick(Stop stop) {
+        onStopClick(stop.getKs_id(), stop.getTitle());
+    }
+
+    @Override
+    public void onStopClick(String ksId, String title) {
+        ArrivalsFragment fragment = ArrivalsFragment.newInstance(lastArrival = ksId);
         fragment.setFavoriteChangeListener(this);
-        openFragment(fragment, stopDirection.getTitle(), hasTwoPanels());
+        openFragment(fragment, title, hasTwoPanels());
     }
 
     private boolean hasTwoPanels() {

@@ -14,7 +14,9 @@ public class Stop {
     private Long id;
     private String ks_id;
     private String title;
+    private String title_lc;
     private String adjacentStreet;
+    private String adjacentStreet_lc;
     private String direction;
     private String cluster;
     private String busesMunicipal;
@@ -38,12 +40,14 @@ public class Stop {
         this.id = id;
     }
 
-    @Generated(hash = 85631562)
-    public Stop(Long id, String ks_id, String title, String adjacentStreet, String direction, String cluster, String busesMunicipal, String busesCommercial, String busesPrigorod, String busesSeason, String busesSpecial, String trams, String trolleybuses, String metros, String infotabloExists, Float latitude, Float longitude, Boolean favorite) {
+    @Generated(hash = 1645264370)
+    public Stop(Long id, String ks_id, String title, String title_lc, String adjacentStreet, String adjacentStreet_lc, String direction, String cluster, String busesMunicipal, String busesCommercial, String busesPrigorod, String busesSeason, String busesSpecial, String trams, String trolleybuses, String metros, String infotabloExists, Float latitude, Float longitude, Boolean favorite) {
         this.id = id;
         this.ks_id = ks_id;
         this.title = title;
+        this.title_lc = title_lc;
         this.adjacentStreet = adjacentStreet;
+        this.adjacentStreet_lc = adjacentStreet_lc;
         this.direction = direction;
         this.cluster = cluster;
         this.busesMunicipal = busesMunicipal;
@@ -84,12 +88,28 @@ public class Stop {
         this.title = title;
     }
 
+    public String getTitle_lc() {
+        return title_lc;
+    }
+
+    public void setTitle_lc(String title_lc) {
+        this.title_lc = title_lc;
+    }
+
     public String getAdjacentStreet() {
         return adjacentStreet;
     }
 
     public void setAdjacentStreet(String adjacentStreet) {
         this.adjacentStreet = adjacentStreet;
+    }
+
+    public String getAdjacentStreet_lc() {
+        return adjacentStreet_lc;
+    }
+
+    public void setAdjacentStreet_lc(String adjacentStreet_lc) {
+        this.adjacentStreet_lc = adjacentStreet_lc;
     }
 
     public String getDirection() {
@@ -204,4 +224,8 @@ public class Stop {
         this.favorite = favorite;
     }
 
+    @Override
+    public String toString() {
+        return title;
+    }
 }

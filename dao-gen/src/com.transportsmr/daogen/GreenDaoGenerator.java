@@ -17,7 +17,9 @@ public class GreenDaoGenerator {
         stop.addIdProperty();
         stop.addStringProperty("ks_id");
         stop.addStringProperty("title");
+        stop.addStringProperty("title_lc");
         stop.addStringProperty("adjacentStreet");
+        stop.addStringProperty("adjacentStreet_lc");
         stop.addStringProperty("direction");
         stop.addStringProperty("cluster");
         stop.addStringProperty("busesMunicipal");
@@ -39,7 +41,7 @@ public class GreenDaoGenerator {
         favorite.addToOne(stop, ksId);*/
 
         try {
-            (new DaoGenerator()).generateAll(schema, "../app/src/main/java");
+            (new DaoGenerator()).generateAll(schema, "./app/src/main/java");//"../app/src/main/java");
         } catch (Exception e) {
             e.printStackTrace();
         }

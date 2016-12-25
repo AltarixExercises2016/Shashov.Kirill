@@ -79,8 +79,10 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
                         stop.setFavorite(favorites.contains(text));
                     } else if (tagname.equalsIgnoreCase("title")) {
                         stop.setTitle(text);
+                        stop.setTitle_lc(text.toLowerCase());
                     } else if (tagname.equalsIgnoreCase("adjacentStreet")) {
                         stop.setAdjacentStreet(text);
+                        stop.setAdjacentStreet_lc(text.toLowerCase());
                     } else if (tagname.equalsIgnoreCase("direction")) {
                         stop.setDirection(text);
                     } else if (tagname.equalsIgnoreCase("latitude")) {

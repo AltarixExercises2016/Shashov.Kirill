@@ -44,8 +44,6 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
     private Timer timer;
     private TimerTask timerTask;
     private Filter filter;
-    private Parcelable listState;
-    private final String LIST_STATE_KEY = "list";
     private RecyclerView transportRecyclerView;
     private MaterialFavoriteButton fav;
     private FavoriteUpdaterListener favoriteChangeListener;
@@ -89,10 +87,6 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
                 filter.setContext(this);
             }
         }
-
-        if (savedInstanceState != null) {
-            listState = savedInstanceState.getParcelable(LIST_STATE_KEY);
-        }
     }
 
     @Override
@@ -129,8 +123,8 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
         transportRecyclerView.setNestedScrollingEnabled(false);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
 
-        //filters
         if (savedInstanceState != null) {
+            //filters
             for (String key : filter.getFiltersMap().keySet()) {
                 if (savedInstanceState.containsKey(key)) {
                     filter.getFiltersMap().put(key, savedInstanceState.getBoolean(key));
@@ -256,11 +250,6 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
                 outState.putBoolean(filterEntry.getKey(), filterEntry.getValue());
             }
         }
-
-        if (transportRecyclerView != null) {
-            listState = transportRecyclerView.getLayoutManager().onSaveInstanceState();
-            outState.putParcelable(LIST_STATE_KEY, listState);
-        }
     }
 
     @Override
@@ -272,6 +261,14 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
 
     public void setFavoriteChangeListener(FavoriteUpdaterListener favoriteChangeListener) {
         this.favoriteChangeListener = favoriteChangeListener;
+    }
+
+    public String getKS_ID() {
+        return (stop != null) ? stop.getKs_id() : "1";
+    }
+
+    public Serializable getFilter() {
+        return filter;
     }
 
     public static class Filter implements Serializable {
@@ -315,13 +312,5 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
         public void setContext(Fragment context) {
             this.context = context;
         }
-    }
-
-    public String getKS_ID() {
-        return (stop != null) ? stop.getKs_id() : "1";
-    }
-
-    public Serializable getFilter() {
-        return filter;
     }
 }

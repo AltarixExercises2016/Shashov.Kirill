@@ -28,7 +28,7 @@ public class NearestStopsFragment extends BaseStopsRecyclerFragment {
                         + " must implement StopsRecyclerAdapter.FavoriteUpdaterListener");
             }
         }
-        recyclerAdapter.setOnStopClickListener((StopsRecyclerAdapter.StopClickListener) getContext());
+        recyclerAdapter.setOnStopClickListener((StopsRecyclerAdapter.OnStopClickListener) getContext());
         recyclerAdapter.setFavorite(false);
     }
 

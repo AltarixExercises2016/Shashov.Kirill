@@ -26,7 +26,7 @@ public class FavoriteStopsFragment extends BaseStopsRecyclerFragment {
                         + " must implement StopsRecyclerAdapter.FavoriteUpdaterListener");
             }
         }
-        recyclerAdapter.setOnStopClickListener((StopsRecyclerAdapter.StopClickListener) getContext());
+        recyclerAdapter.setOnStopClickListener((StopsRecyclerAdapter.OnStopClickListener) getContext());
         recyclerAdapter.setFavorite(true);
     }
 
