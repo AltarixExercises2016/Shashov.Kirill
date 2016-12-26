@@ -1,6 +1,8 @@
 package com.transportsmr.app;
 
+import android.database.Cursor;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -8,13 +10,18 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
+import android.view.inputmethod.EditorInfo;
+import android.widget.FilterQueryProvider;
+import com.transportsmr.app.adapters.SearchAdapter;
 import com.transportsmr.app.adapters.StopsRecyclerAdapter;
 import com.transportsmr.app.fragments.ArrivalsFragment;
 import com.transportsmr.app.fragments.SettingsFragment;
 import com.transportsmr.app.fragments.StopsFragment;
 import com.transportsmr.app.model.Stop;
+import com.transportsmr.app.model.StopDao;
 
 import java.io.Serializable;
 
@@ -34,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
     private String lastArrival = "";
     private NavigationView navView;
     private Serializable arrivalFilter;
+    private SearchAdapter searchAdapter;
+    private SearchView searchBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +106,8 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         } else {
             openStops();
         }
+
+        searchAdapter = new SearchAdapter(this, null, true, app.getDaoSession());
     }
 
     private NavigationView getNavigationView() {
@@ -138,17 +149,12 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
             getSupportActionBar().setTitle(title);
         }
 
-        if (fragment instanceof StopsFragment) {
-            ((StopsFragment) fragment).setOnStopClickListener(MainActivity.this);
-        }
-
-        String containerKey = lastContainerKey;
         lastContainerKey = fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT;
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction().replace(isRightContainer ? R.id.containerRight : R.id.container, fragment, fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT);
-        if ((lastContainerKey.equals(FRAGMENT_RIGHT)) && (containerKey != null) && !(containerKey.equals(FRAGMENT_RIGHT))) {  //TODO bad code
-            transaction.addToBackStack(null);
-        }
-        transaction.commit();
+        getSupportFragmentManager().
+                beginTransaction().
+                replace(isRightContainer ? R.id.containerRight : R.id.container, fragment, fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT).
+                addToBackStack(null).
+                commit();
     }
 
     @Override
@@ -182,19 +188,20 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
 
     @Override
     public void onBackPressed() {
+        if (!hasTwoPanels()) {
+            if (lastContainerKey.equals(FRAGMENT_RIGHT)) {
+                Fragment newFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_LEFT);
+                if (newFragment != null) {
+                    openFragment(newFragment, getTitleForFragment(newFragment), false);
+                    return;
+                }
+            }
+        }
+
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            if (hasTwoPanels()) {
-                return;
-            }
-
-            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
-            if (fragment instanceof ArrivalsFragment) {
-                super.onBackPressed();
-                lastContainerKey = FRAGMENT_LEFT;
-                getSupportActionBar().setTitle(getTitleForFragment(getSupportFragmentManager().findFragmentById(R.id.container)));
-            }
+            drawerLayout.openDrawer(GravityCompat.START);
         }
     }
 
@@ -222,6 +229,56 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         if (right instanceof FavoriteUpdaterListener) {
             ((FavoriteUpdaterListener) right).setFavorite(stopDirection, favorite);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main_menu, menu);
+        MenuItem item = menu.findItem(R.id.action_search);
+        if (item == null) {
+            return false;
+        }
+        searchBox = (SearchView) item.getActionView();
+        int options = searchBox.getImeOptions();
+        searchBox.setImeOptions(options | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        searchAdapter.setFilterQueryProvider(new FilterQueryProvider() {
+            @Override
+            public Cursor runQuery(CharSequence constraint) {
+                if ((constraint != null) && (constraint.length() != 0)) {
+                    constraint = "%" + constraint.toString().toLowerCase() + "%";
+                    Cursor dbList = ((TransportApp) MainActivity.this.getApplication()).
+                            getDaoSession().
+                            getStopDao().
+                            queryBuilder().
+                            whereOr(StopDao.Properties.Title_lc.like(constraint.toString()), StopDao.Properties.AdjacentStreet_lc.like(constraint.toString())).
+                            buildCursor().
+                            forCurrentThread().
+                            query();
+                    return dbList;
+                }
+
+                return null;
+            }
+        });
+        searchBox.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                Cursor cursor = (Cursor) searchAdapter.getItem(position);
+                if (cursor != null) {
+                    MainActivity.this.onStopClick(cursor.getString(1), cursor.getString(2));
+                    return true;
+                }
+                return false;
+            }
+        });
+        searchBox.setSuggestionsAdapter(searchAdapter);
+
+        return true;
     }
 
     public interface OnBackPressedListener {

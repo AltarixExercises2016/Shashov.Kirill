@@ -19,27 +19,12 @@ import java.util.List;
 public class NearestStopsFragment extends BaseStopsRecyclerFragment {
 
     @Override
-    protected void initRecyclerAdapter(StopsRecyclerAdapter recyclerAdapter) {
-        if (getActivity() != null) {
-            try {
-                recyclerAdapter.setOnFavoriteChangeListener((FavoriteUpdaterListener) getActivity());
-            } catch (ClassCastException ex) {
-                throw new ClassCastException(getActivity().toString()
-                        + " must implement StopsRecyclerAdapter.FavoriteUpdaterListener");
-            }
-        }
-        recyclerAdapter.setOnStopClickListener((StopsRecyclerAdapter.OnStopClickListener) getContext());
-        recyclerAdapter.setFavorite(false);
-    }
-
-    @Override
     protected List<StopsRecyclerAdapter.StopWithDirections> getStops() {
         List<StopsRecyclerAdapter.StopWithDirections> directionsList = new ArrayList<>();
         TransportApp app = (TransportApp) getActivity().getApplication();
         Location location = app.getCurrentLocation();
         List<Stop> stops = app.getDaoSession().getStopDao().queryBuilder().where(new WhereCondition.StringCondition("1 GROUP BY TITLE, ADJACENT_STREET")).list();
 
-        //nearestStopsWithDirections.clear();
         for (Stop stop : stops) {
             List<Stop> stopsDirections = app.getDaoSession().getStopDao().queryBuilder().where(StopDao.Properties.AdjacentStreet.eq(stop.getAdjacentStreet()), StopDao.Properties.Title.eq(stop.getTitle())).list();
             if (location == null) {
@@ -74,9 +59,7 @@ public class NearestStopsFragment extends BaseStopsRecyclerFragment {
 
     @Override
     public void onFavoriteChanged() {
-        //if (isFavoriteTab) {
         updateStops();
-        //}
     }
 
 

@@ -18,7 +18,6 @@ import java.util.List;
  * Created by kirill on 26.11.2016.
  */
 public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdapter.ViewHolder> {
-    private boolean isFavorite;
     private FavoriteUpdaterListener favoriteChangeListener;
     private Context context;
     private List<StopWithDirections> stopsWithDirections;
@@ -71,7 +70,6 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
     public StopsRecyclerAdapter(Context context, List<StopWithDirections> dataset) {
         stopsWithDirections = dataset;
         this.context = context;
-        isFavorite = false;
     }
 
     public void setOnStopClickListener(OnStopClickListener onStopClickListener) {
@@ -80,10 +78,6 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
 
     public void setOnFavoriteChangeListener(FavoriteUpdaterListener favoriteChangeListener) {
         this.favoriteChangeListener = favoriteChangeListener;
-    }
-
-    public void setFavorite(boolean favorite) {
-        this.isFavorite = favorite;
     }
 
     @Override
@@ -115,16 +109,6 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
                     new MaterialFavoriteButton.OnFavoriteChangeListener() {
                         @Override
                         public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean favorite) {
-                            if (isFavorite) {
-                                if (stop.getStops().size() == 1) { // delete last direction = delete item in list
-                                    stopsWithDirections.remove(position);
-                                    notifyItemRemoved(position);
-                                    notifyItemRangeChanged(position, stopsWithDirections.size());
-                                } else {
-                                    stop.getStops().remove(stopDirection);
-                                    holder.stopDirections.removeView(ll);
-                                }
-                            }
                             if (favoriteChangeListener != null)
                                 favoriteChangeListener.setFavorite(stopDirection, favorite);
                         }
@@ -148,6 +132,7 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
 
     public interface OnStopClickListener {
         void onStopClick(Stop stopDirection);
+
         void onStopClick(String ksId, String title);
     }
 }

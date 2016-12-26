@@ -27,13 +27,8 @@ import com.transportsmr.app.model.StopDao;
 import java.util.List;
 
 public class StopsFragment extends Fragment implements FavoriteUpdaterListener {
-    public static final String SEARCH_KEY = "SEARCH_KEY";
     private StopsPagerAdapter stopsPagerAdapter;
     private Activity context;
-    private SearchAdapter searchAdapter;
-    private SearchView searchBox;
-    private StopsRecyclerAdapter.OnStopClickListener onStopClickListener;
-    private TransportApp app;
 
     public StopsFragment() {
     }
@@ -43,13 +38,7 @@ public class StopsFragment extends Fragment implements FavoriteUpdaterListener {
         super.onCreate(savedInstanceState);
 
         context = getActivity();
-        app = (TransportApp) context.getApplication();
         stopsPagerAdapter = new StopsPagerAdapter(getChildFragmentManager(), context.getApplication());
-        searchAdapter = new SearchAdapter(context, null, true, app.getDaoSession());
-    }
-
-    public void setOnStopClickListener(StopsRecyclerAdapter.OnStopClickListener onStopClickListener) {
-        this.onStopClickListener = onStopClickListener;
     }
 
     @Override
@@ -63,44 +52,6 @@ public class StopsFragment extends Fragment implements FavoriteUpdaterListener {
         PagerTitleStrip pagerTabStrip = (PagerTitleStrip) view.findViewById(R.id.stops_pager_strip_title);
         pagerTabStrip.setTextColor(Color.BLACK);
 
-        searchBox = (SearchView) view.findViewById(R.id.search_box);
-        int options = searchBox.getImeOptions();
-        searchBox.setImeOptions(options | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        searchAdapter.setFilterQueryProvider(new FilterQueryProvider() {
-            @Override
-            public Cursor runQuery(CharSequence constraint) {
-                if ((constraint != null) && (constraint.length() != 0)) {
-                    constraint = "%" + constraint.toString().toLowerCase() + "%";
-                    Cursor dbList = ((TransportApp) getActivity().getApplication()).
-                            getDaoSession().
-                            getStopDao().
-                            queryBuilder().
-                            whereOr(StopDao.Properties.Title_lc.like(constraint.toString()), StopDao.Properties.AdjacentStreet_lc.like(constraint.toString())).
-                            buildCursor().
-                            forCurrentThread().
-                            query();
-                    return dbList;
-                }
-
-                return null;
-            }
-        });
-        searchBox.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                return false;
-            }
-
-            @Override
-            public boolean onSuggestionClick(int position) {
-                Cursor cursor = (Cursor) searchAdapter.getItem(position);
-                if (cursor != null) {
-                    onStopClickListener.onStopClick(cursor.getString(1), cursor.getString(2));
-                }
-                return false;
-            }
-        });
-        searchBox.setSuggestionsAdapter(searchAdapter);
         return view;
     }
 

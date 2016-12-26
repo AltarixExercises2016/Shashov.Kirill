@@ -7,11 +7,6 @@
     android:orientation="vertical"
     tools:context="com.transportsmr.app.fragments.StopsFragment">
 
-    <android.support.v7.widget.SearchView
-        android:id="@+id/search_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <android.support.v4.view.ViewPager android:id="@+id/viewpager"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
