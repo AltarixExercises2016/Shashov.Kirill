@@ -224,8 +224,4 @@ public class Stop {
         this.favorite = favorite;
     }
 
-    @Override
-    public String toString() {
-        return title;
-    }
 }

@@ -75,7 +75,7 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
         super.onCreate(savedInstanceState);
         context = getActivity();
         transports = new ArrayList<ArrivalTransport>();
-        transportAdapter = new TransportRecyclerAdapter(context, transports);
+        transportAdapter = new TransportRecyclerAdapter(context, context.getApplication(), transports);
         filter = new Filter(this);
 
         if (getArguments() != null) {

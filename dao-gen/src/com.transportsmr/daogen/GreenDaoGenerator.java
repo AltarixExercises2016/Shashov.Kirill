@@ -11,7 +11,7 @@ import org.greenrobot.greendao.generator.Schema;
  */
 public class GreenDaoGenerator {
     public static void main(String[] args) {
-        Schema schema = new Schema(1, "com.transportsmr.app.model");
+        Schema schema = new Schema(3, "com.transportsmr.app.model");
 
         Entity stop = schema.addEntity("Stop");
         stop.addIdProperty();
@@ -35,6 +35,13 @@ public class GreenDaoGenerator {
         stop.addFloatProperty("longitude");
         stop.addBooleanProperty("favorite");
 
+        Entity route = schema.addEntity("Route");
+        route.addIdProperty();
+        route.addStringProperty("kr_id");
+        route.addStringProperty("number");
+        route.addStringProperty("transportType");
+        route.addStringProperty("affiliationID");
+        route.addStringProperty("affiliation");
         /*Entity favorite = schema.addEntity("Favorite");
         favorite.addIdProperty();
         Property ksId = favorite.addLongProperty("stopId").getProperty();
