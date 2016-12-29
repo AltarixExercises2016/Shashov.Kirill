@@ -64,10 +64,8 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
 
         try {
             XmlPullParser parser = downloadXML(Constants.LAST_UPDATES_URL);
-
             String fileName = "";
             String text = "";
-
             int eventType = parser.getEventType();
 
             while (eventType != XmlPullParser.END_DOCUMENT) {

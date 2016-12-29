@@ -1,6 +1,7 @@
 package com.transportsmr.app.adapters;
 
 import android.app.Application;
+import android.app.Notification;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -63,26 +64,35 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
 
         holder.number.setBackground(ContextCompat.getDrawable(context, getBackgroundFromType(arrivalTransport.getType())));
         holder.type.setText(arrivalTransport.getType());
-        ForegroundColorSpan fcs = null;
-        SpannableStringBuilder sb = new SpannableStringBuilder(" ");
-        int colorPosition = 0;
-        for (int i = 0; (i < transports.size()) && (i < 5); i++) {
-            colorPosition = sb.length();
-            sb.append(" ").append(transports.get(i).getTime()).append(", ");
 
+        StringBuilder sb = new StringBuilder(" ");
+        StringBuilder sbCommercial = new StringBuilder(" ");
+        for (int i = 0; (i < transports.size()) && (i < 5); i++) {
             if (app != null && app.getRoutes().containsKey(transports.get(i).getKR_ID())) {
                 if (app.getRoutes().get(transports.get(i).getKR_ID()).getAffiliationID().equals("2")) {
-                    //commercial
-                    if (fcs == null) {
-                        fcs = new ForegroundColorSpan(app.getResources().getColor(R.color.darkred));
-                    }
-                    sb.setSpan(fcs, colorPosition, sb.length() - 2, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-
+                    sbCommercial.append(" ").append(transports.get(i).getTime()).append(", ");
+                } else {
+                    sb.append(" ").append(transports.get(i).getTime()).append(", ");
                 }
+
             }
         }
-        sb.delete(sb.length() - 2, sb.length() - 1);
-        holder.nextTime.setText(sb);
+
+        if (sb.length() > 1) {
+            sb.delete(sb.length() - 2, sb.length() - 1);
+            holder.nextTime.setText(sb);
+              holder.nextTimeBox.setVisibility(View.VISIBLE);
+        } else  {
+             holder.nextTimeBox.setVisibility(View.GONE);
+        }
+
+        if (sbCommercial.length() > 1) {
+            sbCommercial.delete(sbCommercial.length() - 2, sbCommercial.length() - 1);
+            holder.nextTimeCommercial.setText(sbCommercial);
+              holder.nextTimeCommercialBox.setVisibility(View.VISIBLE);
+        } else  {
+              holder.nextTimeCommercialBox.setVisibility(View.GONE);
+        }
         holder.nextStop.setText(transports.get(0).getRemainingLength() + context.getString(R.string.length_to) + transports.get(0).getNextStopName());
         holder.time.setText(transports.get(0).getTime() + context.getString(R.string.arrival_minute));
     }
@@ -105,11 +115,14 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView nextTime;
         private TextView time;
         private TextView nextStop;
-        private TextView nextTime;
         private TextView number;
         private TextView type;
+        public TextView nextTimeCommercial;
+        public LinearLayout nextTimeCommercialBox;
+        public LinearLayout nextTimeBox;
 
         public ViewHolder(View v) {
             super(v);
@@ -118,6 +131,10 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
             nextTime = (TextView) v.findViewById(R.id.transport_next_time);
             time = (TextView) v.findViewById(R.id.transport_time);
             nextStop = (TextView) v.findViewById(R.id.transport_next_stop);
+            nextTimeCommercial = (TextView) v.findViewById(R.id.transport_next_time_commercial);
+            nextTimeBox = (LinearLayout) v.findViewById(R.id.transport_next_time_mun);
+            nextTimeCommercialBox = (LinearLayout) v.findViewById(R.id.transport_next_time_com);
+
         }
 
     }

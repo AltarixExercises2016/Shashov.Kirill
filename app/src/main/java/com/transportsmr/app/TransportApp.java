@@ -31,6 +31,7 @@ public class TransportApp extends Application {
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "stops-db");
         db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
+        getRoutes();
     }
 
 
