@@ -17,16 +17,21 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.FilterQueryProvider;
 import com.transportsmr.app.adapters.SearchAdapter;
 import com.transportsmr.app.adapters.StopsRecyclerAdapter;
+import com.transportsmr.app.events.FavoriteUpdateEvent;
+import com.transportsmr.app.events.StopClickEvent;
 import com.transportsmr.app.fragments.ArrivalsFragment;
 import com.transportsmr.app.fragments.SettingsFragment;
 import com.transportsmr.app.fragments.StopsFragment;
 import com.transportsmr.app.model.Stop;
 import com.transportsmr.app.model.StopDao;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.Serializable;
 
 
-public class MainActivity extends AppCompatActivity implements StopsRecyclerAdapter.OnStopClickListener, FavoriteUpdaterListener {
+public class MainActivity extends AppCompatActivity {
     //public static final String CURRENT_FRAGMENT_KEY = "content";
     public static final String CURRENT_TITLE_KEY = "title";
     private TransportApp app;
@@ -71,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navView = getNavigationView();
+        initNavigationView();
 
         if ((savedInstanceState != null)) {
             //content = getSupportFragmentManager().getFragment(savedInstanceState, CURRENT_FRAGMENT_KEY);\
@@ -108,9 +113,11 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         }
 
         searchAdapter = new SearchAdapter(this, null, true, app.getDaoSession());
+
+        EventBus.getDefault().register(this);
     }
 
-    private NavigationView getNavigationView() {
+    private void initNavigationView() {
         navView = (NavigationView) findViewById(R.id.navigation);
         navView.setItemIconTintList(null);
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -135,8 +142,6 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
                 return false;
             }
         });
-
-        return navView;
     }
 
     private void openStops() {
@@ -170,20 +175,20 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onStopClick(Stop stop) {
-        onStopClick(stop.getKs_id(), stop.getTitle());
-    }
-
-    @Override
-    public void onStopClick(String ksId, String title) {
-        ArrivalsFragment fragment = ArrivalsFragment.newInstance(lastArrival = ksId);
-        fragment.setFavoriteChangeListener(this);
-        openFragment(fragment, title, hasTwoPanels());
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onStopClick(StopClickEvent event){
+        ArrivalsFragment fragment = ArrivalsFragment.newInstance(lastArrival = event.stop.getKs_id());
+        openFragment(fragment, event.stop.getTitle(), hasTwoPanels());
     }
 
     private boolean hasTwoPanels() {
         return getResources().getBoolean(R.bool.has_two_panes);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -216,19 +221,10 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         return getString(resource);
     }
 
-    @Override
-    public void setFavorite(Stop stopDirection, boolean favorite) {
-        stopDirection.setFavorite(favorite);
-        app.getDaoSession().getStopDao().update(stopDirection);
-        Fragment left = getSupportFragmentManager().findFragmentByTag(FRAGMENT_LEFT);
-        Fragment right = getSupportFragmentManager().findFragmentByTag(FRAGMENT_RIGHT);
-        if (left instanceof FavoriteUpdaterListener) {
-            ((FavoriteUpdaterListener) left).setFavorite(stopDirection, favorite);
-        }
-
-        if (right instanceof FavoriteUpdaterListener) {
-            ((FavoriteUpdaterListener) right).setFavorite(stopDirection, favorite);
-        }
+    @Subscribe(threadMode = ThreadMode.MAIN,priority = 1)
+    public void onFavoriteChange(FavoriteUpdateEvent event){
+        event.stop.setFavorite(event.isFavorite);
+        app.getDaoSession().getStopDao().update(event.stop);
     }
 
     @Override
@@ -269,8 +265,10 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
             @Override
             public boolean onSuggestionClick(int position) {
                 Cursor cursor = (Cursor) searchAdapter.getItem(position);
-                if (cursor != null) {
-                    MainActivity.this.onStopClick(cursor.getString(1), cursor.getString(2));
+                Stop stop = app.getDaoSession().getStopDao().readEntity(cursor,0);
+                if (stop != null) {
+                    searchBox.onActionViewCollapsed();
+                    EventBus.getDefault().post(new StopClickEvent(stop));
                     return true;
                 }
                 return false;
@@ -279,9 +277,5 @@ public class MainActivity extends AppCompatActivity implements StopsRecyclerAdap
         searchBox.setSuggestionsAdapter(searchAdapter);
 
         return true;
-    }
-
-    public interface OnBackPressedListener {
-        void onBackPressed();
     }
 }

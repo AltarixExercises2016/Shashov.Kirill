@@ -2,31 +2,24 @@ package com.transportsmr.app.fragments;
 
 import android.app.Activity;
 import android.app.Application;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.*;
 import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import android.view.inputmethod.EditorInfo;
-import android.widget.FilterQueryProvider;
-import com.transportsmr.app.FavoriteUpdaterListener;
 import com.transportsmr.app.R;
-import com.transportsmr.app.TransportApp;
-import com.transportsmr.app.adapters.SearchAdapter;
-import com.transportsmr.app.adapters.StopsRecyclerAdapter;
+import com.transportsmr.app.events.FavoriteUpdateEvent;
 import com.transportsmr.app.fragments.base.BaseStopsRecyclerFragment;
-import com.transportsmr.app.model.Stop;
-import com.transportsmr.app.model.StopDao;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
-public class StopsFragment extends Fragment implements FavoriteUpdaterListener {
+public class StopsFragment extends Fragment {
     private StopsPagerAdapter stopsPagerAdapter;
     private Activity context;
 
@@ -36,9 +29,15 @@ public class StopsFragment extends Fragment implements FavoriteUpdaterListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         context = getActivity();
         stopsPagerAdapter = new StopsPagerAdapter(getChildFragmentManager(), context.getApplication());
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -55,8 +54,10 @@ public class StopsFragment extends Fragment implements FavoriteUpdaterListener {
         return view;
     }
 
-    @Override
-    public void setFavorite(Stop stopDirection, boolean favorite) {
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN,priority = 2)
+    public void onChangeFavorite(FavoriteUpdateEvent event) {
         if (stopsPagerAdapter != null) {
             stopsPagerAdapter.onFavoriteChanged();
         }

@@ -4,7 +4,6 @@ package com.transportsmr.app.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -18,21 +17,23 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
-import com.transportsmr.app.FavoriteUpdaterListener;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
-import com.transportsmr.app.adapters.StopsRecyclerAdapter;
 import com.transportsmr.app.adapters.TransportRecyclerAdapter;
 import com.transportsmr.app.async.DownloadArrivalForStopTask;
+import com.transportsmr.app.events.FavoriteUpdateEvent;
 import com.transportsmr.app.model.ArrivalTransport;
 import com.transportsmr.app.model.Stop;
 import com.transportsmr.app.model.StopDao;
 import com.transportsmr.app.utils.Constants;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.Serializable;
 import java.util.*;
 
-public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListener {
+public class ArrivalsFragment extends Fragment {
     private static final String STOP_KS_ID = "stopKsId";
     private static final String FILTER_STATE = "FILTER_STATE";
     private List<ArrivalTransport> transports;
@@ -46,8 +47,6 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
     private Filter filter;
     private RecyclerView transportRecyclerView;
     private MaterialFavoriteButton fav;
-    private FavoriteUpdaterListener favoriteChangeListener;
-
 
     public static ArrivalsFragment newInstance(String stopKsId) {
         ArrivalsFragment fragment = new ArrivalsFragment();
@@ -74,7 +73,7 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getActivity();
-        transports = new ArrayList<ArrivalTransport>();
+        transports = new ArrayList<>();
         transportAdapter = new TransportRecyclerAdapter(context, context.getApplication(), transports);
         filter = new Filter(this);
 
@@ -98,7 +97,6 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_arrivals, container, false);
 
         ((TextView) view.findViewById(R.id.stop_direction_title)).setText(stop.getTitle());
@@ -110,9 +108,7 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
         fav.setOnFavoriteChangeListener(new MaterialFavoriteButton.OnFavoriteChangeListener() {
             @Override
             public void onFavoriteChanged(MaterialFavoriteButton materialFavoriteButton, boolean b) {
-                if (favoriteChangeListener != null) {
-                    favoriteChangeListener.setFavorite(stop, b);
-                }
+                EventBus.getDefault().post(new FavoriteUpdateEvent(stop, b));
             }
         });
 
@@ -161,7 +157,6 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
                 createDownloadToTransportsTask().execute(stop.getKs_id());
             }
         });
-        String srt = "";
         if (transports.isEmpty()) {
             createDownloadToTransportsTask().execute(stop.getKs_id());
         }
@@ -202,8 +197,6 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
             public void onPost(final List<ArrivalTransport> arrival) {
                 if (context != null) {
                     transports.clear();
-                    //TODO filter
-
                     transports.addAll(arrival);
                     context.runOnUiThread(new Runnable() {
                         @Override
@@ -217,6 +210,15 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
                 }
             }
         };
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, priority = 2)
+    public void onFavoriteChange(FavoriteUpdateEvent event) {
+        if (fav != null) {
+            if (event.stop.equals(stop)) {
+                fav.setFavorite(event.isFavorite, false);
+            }
+        }
     }
 
     @Override
@@ -250,21 +252,6 @@ public class ArrivalsFragment extends Fragment implements FavoriteUpdaterListene
                 outState.putBoolean(filterEntry.getKey(), filterEntry.getValue());
             }
         }
-    }
-
-    @Override
-    public void setFavorite(Stop stopDirection, boolean favorite) {
-        if (fav != null) {
-            fav.setFavorite(favorite, false);
-        }
-    }
-
-    public void setFavoriteChangeListener(FavoriteUpdaterListener favoriteChangeListener) {
-        this.favoriteChangeListener = favoriteChangeListener;
-    }
-
-    public String getKS_ID() {
-        return (stop != null) ? stop.getKs_id() : "1";
     }
 
     public Serializable getFilter() {

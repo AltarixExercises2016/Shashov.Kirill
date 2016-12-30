@@ -12,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import com.transportsmr.app.FavoriteUpdaterListener;
 import com.transportsmr.app.R;
 import com.transportsmr.app.adapters.StopsRecyclerAdapter;
 import com.transportsmr.app.utils.Constants;
@@ -48,18 +47,10 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
     }
 
     protected void initRecyclerAdapter(StopsRecyclerAdapter recyclerAdapter) {
-        if (getActivity() != null) {
-            try {
-                recyclerAdapter.setOnFavoriteChangeListener((FavoriteUpdaterListener) getActivity());
-            } catch (ClassCastException ex) {
-                throw new ClassCastException(getActivity().toString()
-                        + " must implement StopsRecyclerAdapter.FavoriteUpdaterListener");
-            }
-        }
-        recyclerAdapter.setOnStopClickListener((StopsRecyclerAdapter.OnStopClickListener) getActivity());
     }
 
     protected abstract List<StopsRecyclerAdapter.StopWithDirections> getStops();
+
 
     public abstract void onFavoriteChanged();
 

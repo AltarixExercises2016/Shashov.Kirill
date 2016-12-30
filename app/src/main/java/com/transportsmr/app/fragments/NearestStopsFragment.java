@@ -1,7 +1,6 @@
 package com.transportsmr.app.fragments;
 
 import android.location.Location;
-import com.transportsmr.app.FavoriteUpdaterListener;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.adapters.StopsRecyclerAdapter;
 import com.transportsmr.app.fragments.base.BaseStopsRecyclerFragment;
