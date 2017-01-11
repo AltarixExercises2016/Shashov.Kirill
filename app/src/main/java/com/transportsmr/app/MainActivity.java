@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onStopClick(StopClickEvent event){
+    public void onStopClick(StopClickEvent event) {
         ArrivalsFragment fragment = ArrivalsFragment.newInstance(lastArrival = event.stop.getKs_id());
         openFragment(fragment, event.stop.getTitle(), hasTwoPanels());
     }
@@ -221,8 +221,8 @@ public class MainActivity extends AppCompatActivity {
         return getString(resource);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN,priority = 1)
-    public void onFavoriteChange(FavoriteUpdateEvent event){
+    @Subscribe(threadMode = ThreadMode.MAIN, priority = 1)
+    public void onFavoriteChange(FavoriteUpdateEvent event) {
         event.stop.setFavorite(event.isFavorite);
         app.getDaoSession().getStopDao().update(event.stop);
     }
@@ -247,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
                             getStopDao().
                             queryBuilder().
                             whereOr(StopDao.Properties.Title_lc.like(constraint.toString()), StopDao.Properties.AdjacentStreet_lc.like(constraint.toString())).
+                            orderAsc(StopDao.Properties.Title_lc).
                             buildCursor().
                             forCurrentThread().
                             query();
@@ -265,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onSuggestionClick(int position) {
                 Cursor cursor = (Cursor) searchAdapter.getItem(position);
-                Stop stop = app.getDaoSession().getStopDao().readEntity(cursor,0);
+                Stop stop = app.getDaoSession().getStopDao().readEntity(cursor, 0);
                 if (stop != null) {
                     searchBox.onActionViewCollapsed();
                     EventBus.getDefault().post(new StopClickEvent(stop));
