@@ -82,7 +82,7 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final StopWithDirections stop = stopsWithDirections.get(position);
-        holder.title.setText(stop.getTitle());// + " " + stop.getMinDistance());
+        holder.title.setText(stop.getTitle());
         holder.street.setText(stop.getAdjacentStreet());
         for (final Stop stopDirection : stop.getStops()) {
             final LinearLayout ll = (LinearLayout) LayoutInflater.from((Context) context).inflate(R.layout.stop_direction, null);

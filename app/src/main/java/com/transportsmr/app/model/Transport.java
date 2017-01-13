@@ -6,7 +6,7 @@ package com.transportsmr.app.model;
 public class Transport {
     private String type;
     private String number;
-    private String KR_ID;
+    private String id;
     private String time;
     private String timeInSeconds;
     private String hullNo;
@@ -36,12 +36,12 @@ public class Transport {
         this.number = number;
     }
 
-    public String getKR_ID() {
-        return KR_ID;
+    public String getId() {
+        return id;
     }
 
-    public void setKR_ID(String KR_ID) {
-        this.KR_ID = KR_ID;
+    public void setId(String KR_ID) {
+        this.id = KR_ID;
     }
 
     public String getTime() {

@@ -1,13 +1,9 @@
 package com.transportsmr.app.adapters;
 
 import android.app.Application;
-import android.app.Notification;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +11,9 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.model.ArrivalTransport;
-import com.transportsmr.app.model.Stop;
 import com.transportsmr.app.model.Transport;
 
 import java.util.ArrayList;
@@ -60,41 +54,42 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final ArrivalTransport arrivalTransport = arrival.get(position);
         final List<Transport> transports = arrivalTransport.getTransports();
-        holder.number.setText(arrivalTransport.getNumber());
 
+        holder.number.setText(arrivalTransport.getNumber());
         holder.number.setBackground(ContextCompat.getDrawable(context, getBackgroundFromType(arrivalTransport.getType())));
         holder.type.setText(arrivalTransport.getType());
+        holder.nextStop.setText(transports.get(0).getRemainingLength() + context.getString(R.string.length_to) + transports.get(0).getNextStopName());
+        holder.time.setText(transports.get(0).getTime() + context.getString(R.string.arrival_minute));
 
+        //next time
         StringBuilder sb = new StringBuilder(" ");
         StringBuilder sbCommercial = new StringBuilder(" ");
-        for (int i = 0; (i < transports.size()) && (i < 5); i++) {
-            if (app != null && app.getRoutes().containsKey(transports.get(i).getKR_ID())) {
-                if (app.getRoutes().get(transports.get(i).getKR_ID()).getAffiliationID().equals("2")) {
-                    sbCommercial.append(" ").append(transports.get(i).getTime()).append(", ");
+        int i = 0;
+        for (Transport transport : transports) {
+            if (i == 5) break;
+            if (app != null && app.getRoutes().containsKey(transport.getId())) {
+                if (app.getRoutes().get(transport.getId()).getAffiliationID().equals("2")) {
+                    sbCommercial.append(" ").append(transport.getTime()).append(", ");
                 } else {
-                    sb.append(" ").append(transports.get(i).getTime()).append(", ");
+                    sb.append(" ").append(transport.getTime()).append(", ");
                 }
 
             }
+            i++;
         }
+        updateTimeBox(sb, holder.nextTime, holder.nextTimeBox);
+        updateTimeBox(sbCommercial, holder.nextTimeCommercial, holder.nextTimeCommercialBox);
 
-        if (sb.length() > 1) {
-            sb.delete(sb.length() - 2, sb.length() - 1);
-            holder.nextTime.setText(sb);
-              holder.nextTimeBox.setVisibility(View.VISIBLE);
-        } else  {
-             holder.nextTimeBox.setVisibility(View.GONE);
-        }
+    }
 
-        if (sbCommercial.length() > 1) {
-            sbCommercial.delete(sbCommercial.length() - 2, sbCommercial.length() - 1);
-            holder.nextTimeCommercial.setText(sbCommercial);
-              holder.nextTimeCommercialBox.setVisibility(View.VISIBLE);
-        } else  {
-              holder.nextTimeCommercialBox.setVisibility(View.GONE);
+    private void updateTimeBox(StringBuilder text, TextView textView, LinearLayout timeBox) {
+        if (text.length() > 1) {
+            text.delete(text.length() - 2, text.length() - 1);
+            textView.setText(text);
+            textView.setVisibility(View.VISIBLE);
+        } else {
+            timeBox.setVisibility(View.GONE);
         }
-        holder.nextStop.setText(transports.get(0).getRemainingLength() + context.getString(R.string.length_to) + transports.get(0).getNextStopName());
-        holder.time.setText(transports.get(0).getTime() + context.getString(R.string.arrival_minute));
     }
 
     private int getBackgroundFromType(String type) {

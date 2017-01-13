@@ -1,22 +1,21 @@
 package com.transportsmr.app;
 
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.view.*;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FilterQueryProvider;
 import com.transportsmr.app.adapters.SearchAdapter;
-import com.transportsmr.app.adapters.StopsRecyclerAdapter;
 import com.transportsmr.app.events.FavoriteUpdateEvent;
 import com.transportsmr.app.events.StopClickEvent;
 import com.transportsmr.app.fragments.ArrivalsFragment;
@@ -35,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     //public static final String CURRENT_FRAGMENT_KEY = "content";
     public static final String CURRENT_TITLE_KEY = "title";
     private TransportApp app;
-    //private Fragment content;
     private DrawerLayout drawerLayout;
     private static final String FRAGMENT_RIGHT = "FRAGMENT_RIGHT";
     private static final String FRAGMENT_LEFT = "FRAGMENT_LEFT";
@@ -112,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             openStops();
         }
 
-        searchAdapter = new SearchAdapter(this, null, true, app.getDaoSession());
+        searchAdapter = new SearchAdapter(this, null, true);
 
         EventBus.getDefault().register(this);
     }

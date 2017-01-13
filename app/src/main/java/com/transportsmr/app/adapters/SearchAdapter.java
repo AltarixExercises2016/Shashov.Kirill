@@ -8,17 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.transportsmr.app.R;
-import com.transportsmr.app.model.DaoSession;
+import com.transportsmr.app.model.StopDao;
 
 /**
  * Created by kirill on 24.12.16.
  */
 public class SearchAdapter extends CursorAdapter {
-    private DaoSession daoSession;
 
-    public SearchAdapter(Context context, Cursor c, boolean autoRequery, DaoSession daoSession) {
+    public SearchAdapter(Context context, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
-        this.daoSession = daoSession;
     }
 
     public class ViewHolder {
@@ -43,9 +41,8 @@ public class SearchAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
-        //Stop stop = daoSession.getStopDao().readEntity(cursor, cursor.getPosition());
-        holder.title.setText(cursor.getString(2));
-        holder.street.setText(cursor.getString(4));
-        holder.direction.setText(cursor.getString(6));
+        holder.title.setText(cursor.getString(cursor.getColumnIndex(StopDao.Properties.Title.columnName)));
+        holder.street.setText(cursor.getString(cursor.getColumnIndex(StopDao.Properties.AdjacentStreet.columnName)));
+        holder.direction.setText(cursor.getString(cursor.getColumnIndex(StopDao.Properties.Direction.columnName)));
     }
 }

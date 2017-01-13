@@ -2,8 +2,6 @@ package com.transportsmr.app.async;
 
 import android.os.AsyncTask;
 import com.transportsmr.app.model.DaoSession;
-import com.transportsmr.app.model.Stop;
-import com.transportsmr.app.model.StopDao;
 import com.transportsmr.app.utils.ClassifierUpdater;
 import com.transportsmr.app.utils.Constants;
 import com.transportsmr.app.utils.RoutesClassifierUpdater;
@@ -16,7 +14,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kirill on 27.11.2016.
@@ -25,14 +26,14 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
     private final DaoSession daoSession;
     private final UpdateTaskListener listener;
     private boolean isSuccessful;
-    private HashMap<String, String> currentUpdateMap;
-    private HashMap<String, String> lastUpdateMap;
+    private Map<String, String> currentUpdateMap;
+    private Map<String, String> lastUpdateMap;
 
     public ClassifiersUpdateTask(UpdateTaskListener listener, DaoSession daoSession, Map<String, String> currentUpdateMap) {
         this.listener = listener;
         this.daoSession = daoSession;
-        this.currentUpdateMap = new HashMap(currentUpdateMap);
-        this.lastUpdateMap = new HashMap();
+        this.currentUpdateMap = new HashMap<>(currentUpdateMap);
+        this.lastUpdateMap = new HashMap<>();
         this.isSuccessful = true;
     }
 

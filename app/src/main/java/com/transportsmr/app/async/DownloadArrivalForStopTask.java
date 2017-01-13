@@ -1,8 +1,6 @@
 package com.transportsmr.app.async;
 
 import android.os.AsyncTask;
-import android.widget.Toast;
-import com.transportsmr.app.adapters.StopsRecyclerAdapter;
 import com.transportsmr.app.model.ArrivalTransport;
 import com.transportsmr.app.model.Transport;
 import com.transportsmr.app.utils.Constants;
@@ -62,7 +60,7 @@ public abstract class DownloadArrivalForStopTask extends AsyncTask<String, Void,
     }
 
     public static Map<String, ArrayList<Transport>> parseTransport(String json) throws JSONException {
-        Map<String, ArrayList<Transport>> transports = new HashMap();
+        Map<String, ArrayList<Transport>> transports = new HashMap<>();
         JSONObject jObj = new JSONObject(json);
         if (!jObj.has("arrival")) {
             return transports;
@@ -72,7 +70,7 @@ public abstract class DownloadArrivalForStopTask extends AsyncTask<String, Void,
         for (int i = 0; i < jArr.length(); i++) {
             JSONObject tr = jArr.getJSONObject(i);
             Transport transport = new Transport();
-            transport.setKR_ID(tr.getString("KR_ID"));
+            transport.setId(tr.getString("KR_ID"));
             transport.setModelTitle(tr.getString("modelTitle"));
             transport.setNextStopName(tr.getString("nextStopName"));
             transport.setNumber(tr.getString("number"));
