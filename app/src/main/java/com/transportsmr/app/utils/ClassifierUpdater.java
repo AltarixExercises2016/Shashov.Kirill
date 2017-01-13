@@ -1,49 +1,28 @@
 package com.transportsmr.app.utils;
 
 import com.transportsmr.app.model.DaoSession;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by kirill on 28.12.16.
  */
-public abstract class ClassifierUpdater<Model> {
-
-    private final String classifierUrl;
+public abstract class ClassifierUpdater {
     private final DaoSession daoSession;
-    private final String fileName;
+    private final ToSamaraApi api;
 
-    public ClassifierUpdater(DaoSession daoSession, String fileName, String classifierUrl) {
+    public ClassifierUpdater(DaoSession daoSession, ToSamaraApi api) {
+        this.api = api;
         this.daoSession = daoSession;
-        this.fileName = fileName;
-        this.classifierUrl = classifierUrl;
-    }
-
-    public String getClassifierUrl() {
-        return classifierUrl;
     }
 
     public DaoSession getDaoSession() {
         return daoSession;
     }
 
-    public String getFileName() {
-        return fileName;
+    public ToSamaraApi getApi() {
+        return api;
     }
 
-    public boolean update(XmlPullParser xmlPullParser) {
-        try {
-            update(parse(xmlPullParser));
-        } catch (Exception ex) {
-            return false;
-        }
-        return true;
-    }
+    public abstract String getFileName();
 
-    protected abstract List<Model> parse(XmlPullParser xmlPullParser) throws XmlPullParserException, IOException;
-
-    protected abstract void update(List<Model> list);
+    public abstract boolean update();
 }

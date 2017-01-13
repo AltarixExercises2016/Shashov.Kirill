@@ -67,8 +67,8 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
         int i = 0;
         for (Transport transport : transports) {
             if (i == 5) break;
-            if (app != null && app.getRoutes().containsKey(transport.getId())) {
-                if (app.getRoutes().get(transport.getId()).getAffiliationID().equals("2")) {
+            if (app != null && app.getRoutes().containsKey(transport.getkRID())) {
+                if (app.getRoutes().get(transport.getkRID()).getAffiliationID().equals("2")) {
                     sbCommercial.append(" ").append(transport.getTime()).append(", ");
                 } else {
                     sb.append(" ").append(transport.getTime()).append(", ");
@@ -86,7 +86,7 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
         if (text.length() > 1) {
             text.delete(text.length() - 2, text.length() - 1);
             textView.setText(text);
-            textView.setVisibility(View.VISIBLE);
+            timeBox.setVisibility(View.VISIBLE);
         } else {
             timeBox.setVisibility(View.GONE);
         }

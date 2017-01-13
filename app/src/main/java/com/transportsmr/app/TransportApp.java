@@ -2,7 +2,6 @@ package com.transportsmr.app;
 
 import android.app.Application;
 import android.content.Context;
-import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -10,7 +9,9 @@ import android.net.NetworkInfo;
 import com.transportsmr.app.model.DaoMaster;
 import com.transportsmr.app.model.DaoSession;
 import com.transportsmr.app.model.Route;
+import com.transportsmr.app.utils.ToSamaraApi;
 import org.greenrobot.greendao.database.Database;
+import retrofit2.Retrofit;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ public class TransportApp extends Application {
     private DaoSession daoSession;
     private Database db;
     private Map<String, Route> routes;
+    private ToSamaraApi api;
 
     @Override
     public void onCreate() {
@@ -31,9 +33,24 @@ public class TransportApp extends Application {
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "stops-db");
         db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
-        getRoutes();
+
+        //cache routes
+        routes = new HashMap<String, Route>();
+        List<Route> list = getDaoSession().getRouteDao().loadAll();
+        for (Route route : list) {
+            routes.put(route.getKr_id(), route);
+        }
+
+        api = new Retrofit.Builder().
+                baseUrl("http://tosamara.ru").
+                addConverterFactory(new ToSamaraApi.RetrofitUniversalConverter()).
+                build().
+                create(ToSamaraApi.class);
     }
 
+    public ToSamaraApi getApi() {
+        return api;
+    }
 
     public DaoSession getDaoSession() {
         return daoSession;
@@ -62,14 +79,6 @@ public class TransportApp extends Application {
     }
 
     public Map<String, Route> getRoutes() {
-        if (routes == null) {
-            routes = new HashMap<String, Route>();
-            List<Route> list = getDaoSession().getRouteDao().loadAll();
-            for (Route route : list) {
-                routes.put(route.getKr_id(), route);
-            }
-        }
-
         return routes;
     }
 

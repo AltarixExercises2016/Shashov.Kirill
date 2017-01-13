@@ -2,51 +2,42 @@ package com.transportsmr.app.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.widget.Toast;
-import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.async.ClassifiersUpdateTask;
 import com.transportsmr.app.utils.Constants;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by kirill on 27.11.2016.
  */
-public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.UpdateTaskListener {
-    private ClassifiersUpdateTask updateTask;
+public class UpdatingFragment extends Fragment {
     private TransportApp app;
     private OnUpdatingListener listener;
-    private SharedPreferences sp;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         listener = (OnUpdatingListener) getActivity();
         app = (TransportApp) getActivity().getApplication();
-        sp = app.getSharedPreferences(Constants.SHARED_NAME, Context.MODE_PRIVATE);
-        setRetainInstance(true);
-
         startUpdate();
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        setRetainInstance(true);
     }
 
     private void updateUpdateTime(Map<String, String> lastUpdateMap) {
+        SharedPreferences sp = app.getSharedPreferences(Constants.SHARED_NAME, Context.MODE_PRIVATE);
         for (Map.Entry<String, String> entry : lastUpdateMap.entrySet()) {
             sp.edit().putString(entry.getKey(), entry.getValue());
         }
     }
 
-    @Override
     public void onFinishUpdating(boolean isSuccessful, Map<String, String> lastUpdateMap) {
         listener.onFinishUpdating(isSuccessful);
         //if (isSuccessful) updateUpdateTime(lastUpdateMap); TODO delete comment
@@ -55,11 +46,13 @@ public class UpdatingFragment extends Fragment implements ClassifiersUpdateTask.
     public void startUpdate() {
         listener.onHaveUpdate();
         if (app.isOnline()) {
-            HashMap<String, String> currentUpdateMap = new HashMap<String, String>();
-            currentUpdateMap.put(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, sp.getString(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, "0"));
-            currentUpdateMap.put(Constants.SHARED_ROUTES_FILENAME, sp.getString(Constants.SHARED_ROUTES_FILENAME, "0"));
-            currentUpdateMap.put(Constants.SHARED_STOPS_FILENAME, sp.getString(Constants.SHARED_STOPS_FILENAME, "0"));
-            (new ClassifiersUpdateTask(this, app.getDaoSession(), currentUpdateMap)).execute();
+            (new ClassifiersUpdateTask(app) {
+                @Override
+                protected void onPostExecute(Void result) {
+                    super.onPostExecute(result);
+                    onFinishUpdating(getIsSuccessful(), getLastUpdateMap());
+                }
+            }).execute();
         } else {
             listener.onFinishUpdating(false);
         }

@@ -12,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -20,7 +19,7 @@ import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.adapters.TransportRecyclerAdapter;
-import com.transportsmr.app.async.DownloadArrivalForStopTask;
+import com.transportsmr.app.async.ArrivalCallback;
 import com.transportsmr.app.events.FavoriteUpdateEvent;
 import com.transportsmr.app.model.ArrivalTransport;
 import com.transportsmr.app.model.Stop;
@@ -31,6 +30,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class ArrivalsFragment extends Fragment {
@@ -142,7 +144,7 @@ public class ArrivalsFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 filter.getFiltersMap().put(filterKey, isChecked);
-                createDownloadToTransportsTask().execute(stop.getKs_id()); //TODO update
+                updateArrival(stop.getKs_id()); //TODO update
             }
         });
     }
@@ -154,23 +156,24 @@ public class ArrivalsFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                createDownloadToTransportsTask().execute(stop.getKs_id());
+                updateArrival(stop.getKs_id());
             }
         });
-        if (transports.isEmpty()) {
-            createDownloadToTransportsTask().execute(stop.getKs_id());
-        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        if (transports.isEmpty()) {
+            updateArrival(stop.getKs_id());
+        }
+
         try {
             timer = new Timer();
             timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    createDownloadToTransportsTask().execute(stop.getKs_id());
+                    updateArrival(stop.getKs_id());
                 }
             };
             timer.schedule(timerTask, Constants.UPDATE_TRANSPORT_DELAY, Constants.UPDATE_TRANSPORT_DELAY);
@@ -179,37 +182,48 @@ public class ArrivalsFragment extends Fragment {
         }
     }
 
-    private DownloadArrivalForStopTask createDownloadToTransportsTask() {
-        return new DownloadArrivalForStopTask() {
-            @Override
-            protected void onPreExecute() {
-                if (context != null) {
-                    context.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            swipeRefreshLayout.setRefreshing(true);
-                        }
-                    });
-                }
-            }
+    private void updateArrival(String ksid) {
+        updateArrival(ksid, 30);
+    }
 
+    private void updateArrival(String ksid, int count) {
+        String sha = "";
+        try {
+            sha = sha1(ksid + count + Constants.TOSAMARA_PASSWORD);
+        } catch (NoSuchAlgorithmException e) {
+            return;
+        }
+
+        context.runOnUiThread(new Runnable() {
             @Override
-            public void onPost(final List<ArrivalTransport> arrival) {
-                if (context != null) {
-                    transports.clear();
-                    transports.addAll(arrival);
-                    context.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            transportAdapter.getFilter().filter(filter.getFilterConstraint());
-                            //transportAdapter.notifyDataSetChanged();
-                            swipeRefreshLayout.setRefreshing(false);
-                            emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
-                        }
-                    });
-                }
+            public void run() {
+                swipeRefreshLayout.setRefreshing(true);
             }
-        };
+        });
+        ((TransportApp) context.getApplication()).getApi().getArrival("getFirstArrivalToStop", ksid, count, "android", "envoy93", sha.toLowerCase()).enqueue(new ArrivalCallback() {
+            @Override
+            protected void OnPost(final ArrayList<ArrivalTransport> arrival) {
+                transports.clear();
+                transports.addAll(arrival);
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        transportAdapter.getFilter().filter(filter.getFilterConstraint());
+                        //transportAdapter.notifyDataSetChanged();
+                        swipeRefreshLayout.setRefreshing(false);
+                        emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
+                    }
+                });
+            }
+        });
+    }
+
+    private String sha1(String s) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+
+        digest.reset();
+        byte[] data = digest.digest(s.getBytes());
+        return String.format("%0" + (data.length * 2) + "X", new BigInteger(1, data));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, priority = 2)

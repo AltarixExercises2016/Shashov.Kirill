@@ -3,24 +3,76 @@ package com.transportsmr.app.utils;
 import com.transportsmr.app.model.DaoSession;
 import com.transportsmr.app.model.Stop;
 import com.transportsmr.app.model.StopDao;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import retrofit2.Response;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 /**
  * Created by kirill on 28.12.16.
  */
-public class StopsClassifierUpdater extends ClassifierUpdater<Stop> {
+public class StopsClassifierUpdater extends ClassifierUpdater {
 
-    public StopsClassifierUpdater(DaoSession daoSession, String fileName, String classifierUrl) {
-        super(daoSession, fileName, classifierUrl);
+    public StopsClassifierUpdater(DaoSession daoSession, ToSamaraApi api) {
+        super(daoSession, api);
     }
 
     @Override
+    public String getFileName() {
+        return Constants.SHARED_STOPS_FILENAME;
+    }
+
+    @Override
+    public boolean update() {
+        Response<ToSamaraApi.StopsResponse> response = null;
+        try {
+            response = getApi().getStops().execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (response.body() == null) {
+            return false;
+        }
+
+        List<Stop> stops = response.body().getStops();
+        if (stops != null && !stops.isEmpty()) {
+            HashSet<String> favorites = new HashSet<String>();
+            List<Stop> favList = getDaoSession().getStopDao().queryBuilder().where(StopDao.Properties.Favorite.eq(true)).build().list();
+            for (Stop favStop : favList) {
+                favorites.add(favStop.getKs_id());
+            }
+
+            for (Stop stop : stops) {  // :(
+                if (stop.getTitle() == null) {
+                    stop.setTitle("");
+                }
+                if (stop.getAdjacentStreet() == null) {
+                    stop.setAdjacentStreet("");
+                }
+                if (stop.getDirection() == null) {
+                    stop.setDirection("");
+                }
+                if (stop.getLongitude() == null) {
+                    stop.setLongitude(0.0f);
+                }
+                if (stop.getLatitude() == null) {
+                    stop.setLatitude(0.0f);
+                }
+                stop.setTitle_lc(stop.getTitle().toLowerCase());
+                stop.setAdjacentStreet_lc(stop.getAdjacentStreet().toLowerCase());
+                stop.setFavorite(favorites.contains(stop.getKs_id()));
+            }
+
+            getDaoSession().getStopDao().deleteAll();
+            getDaoSession().getStopDao().insertInTx(stops);
+            return true;
+        }
+        return false;
+    }
+
+    /*@Override
     protected List<Stop> parse(XmlPullParser parser) throws XmlPullParserException, IOException {
         Stop stop = null;
         String text = "";
@@ -106,6 +158,6 @@ public class StopsClassifierUpdater extends ClassifierUpdater<Stop> {
     protected void update(List<Stop> list) {
         getDaoSession().getStopDao().deleteAll();
         getDaoSession().getStopDao().insertInTx(list);
-    }
+    }*/
 
 }

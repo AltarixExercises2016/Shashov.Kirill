@@ -65,4 +65,12 @@ dependencies {
     compile 'com.github.ivbaranov:materialfavoritebutton:0.1.2'
     compile 'org.adw.library:discrete-seekbar:1.0.1'
     compile 'org.greenrobot:eventbus:3.0.0'
+    compile "com.google.code.gson:gson:2.+"
+    compile ('com.squareup.retrofit2:converter-simplexml:2.1.0'){
+        exclude module: 'stax-api'
+        exclude module: 'stax'
+        exclude module: 'xpp3'
+    }
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
 }

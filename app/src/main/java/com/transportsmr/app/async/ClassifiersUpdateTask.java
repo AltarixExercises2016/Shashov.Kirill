@@ -1,19 +1,13 @@
 package com.transportsmr.app.async;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import com.transportsmr.app.model.DaoSession;
-import com.transportsmr.app.utils.ClassifierUpdater;
-import com.transportsmr.app.utils.Constants;
-import com.transportsmr.app.utils.RoutesClassifierUpdater;
-import com.transportsmr.app.utils.StopsClassifierUpdater;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+import com.transportsmr.app.TransportApp;
+import com.transportsmr.app.utils.*;
+import retrofit2.Response;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,29 +17,24 @@ import java.util.Map;
  * Created by kirill on 27.11.2016.
  */
 public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
-    private final DaoSession daoSession;
-    private final UpdateTaskListener listener;
+    private final TransportApp app;
     private boolean isSuccessful;
     private Map<String, String> currentUpdateMap;
     private Map<String, String> lastUpdateMap;
 
-    public ClassifiersUpdateTask(UpdateTaskListener listener, DaoSession daoSession, Map<String, String> currentUpdateMap) {
-        this.listener = listener;
-        this.daoSession = daoSession;
-        this.currentUpdateMap = new HashMap<>(currentUpdateMap);
+    public ClassifiersUpdateTask(TransportApp app) {
+        this.app = app;
         this.lastUpdateMap = new HashMap<>();
         this.isSuccessful = true;
+        initCurrentUpdateMap();
     }
 
-    private XmlPullParser downloadXML(String path) throws IOException, XmlPullParserException {
-        URL url = new URL(path);
-        URLConnection conn = url.openConnection();
-        conn.setConnectTimeout(Constants.NETWORK_TIMEOUT);
-        conn.setReadTimeout(Constants.NETWORK_TIMEOUT);
-        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-        XmlPullParser xpp = factory.newPullParser();
-        xpp.setInput(new InputStreamReader(conn.getInputStream()));
-        return xpp;
+    private void initCurrentUpdateMap() {
+        SharedPreferences sp = app.getSharedPreferences(Constants.SHARED_NAME, Context.MODE_PRIVATE);
+        currentUpdateMap = new HashMap<String, String>();
+        currentUpdateMap.put(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, sp.getString(Constants.SHARED_ROUTES_AND_STOPS_FILENAME, "0"));
+        currentUpdateMap.put(Constants.SHARED_ROUTES_FILENAME, sp.getString(Constants.SHARED_ROUTES_FILENAME, "0"));
+        currentUpdateMap.put(Constants.SHARED_STOPS_FILENAME, sp.getString(Constants.SHARED_STOPS_FILENAME, "0"));
     }
 
     private boolean isOldClassifier(String filename) {
@@ -63,39 +52,19 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
             return;
         }
 
+        Response<ToSamaraApi.ClassifiersResponse> response;
         try {
-            XmlPullParser parser = downloadXML(Constants.LAST_UPDATES_URL);
-            String fileName = "";
-            String text = "";
-            int eventType = parser.getEventType();
+            response = app.getApi().getClassifiersUpdate().execute();
+        } catch (IOException e) {
+            return;
+        }
 
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                String tagname = parser.getName();
-                switch (eventType) {
-                    case XmlPullParser.START_TAG:
-                        if (tagname.equalsIgnoreCase("file")) {
-                            fileName = parser.getAttributeValue(0);
-                        }
-                        text = "";
-                        break;
-                    case XmlPullParser.TEXT:
-                        text = parser.getText().trim();
-                        break;
-                    case XmlPullParser.END_TAG:
-                        if (tagname.equalsIgnoreCase("modified")) {
-                            lastUpdateMap.put(fileName, text);
-                        } else if (tagname.equalsIgnoreCase("file")) {
-                            fileName = "";
-                        } else {
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                eventType = parser.next();
-            }
-        } catch (Exception e) {
-            lastUpdateMap.clear();
+        if (response.body() == null) {
+            return;
+        }
+
+        for (ToSamaraApi.File file : response.body().getFiles()) {
+            lastUpdateMap.put(file.getName(), file.getModified());
         }
     }
 
@@ -106,8 +75,8 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         List<ClassifierUpdater> updaters = new ArrayList<>();
-        updaters.add(new StopsClassifierUpdater(daoSession, Constants.SHARED_STOPS_FILENAME, Constants.STOPS_CLASSIFIER_URL));
-        updaters.add(new RoutesClassifierUpdater(daoSession, Constants.SHARED_ROUTES_FILENAME, Constants.ROUTES_CLASSIFIER_URL));
+        updaters.add(new StopsClassifierUpdater(app.getDaoSession(), app.getApi()));
+        updaters.add(new RoutesClassifierUpdater(app.getDaoSession(), app.getApi()));
 
         updateLastUpdateTime();
         for (ClassifierUpdater updater : updaters) {
@@ -115,12 +84,7 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
             if (!isOldClassifier(updater.getFileName())) {
                 restoreUpdateDate(updater.getFileName());
             } else {
-                try {
-                    isSuccess = updater.update(downloadXML(updater.getClassifierUrl()));
-                } catch (Exception ex) {
-                    isSuccess = false;
-                }
-
+                isSuccess = updater.update();
                 if (!isSuccess) {
                     restoreUpdateDate(updater.getFileName());
                 }
@@ -130,20 +94,11 @@ public class ClassifiersUpdateTask extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    @Override
-    protected void onPostExecute(Void result) {
-        super.onPostExecute(result);
-        listener.onFinishUpdating(isSuccessful, lastUpdateMap);
+    protected boolean getIsSuccessful() {
+        return isSuccessful;
     }
 
-
-    public interface UpdateTaskListener {
-        void onFinishUpdating(boolean isSuccessful, Map<String, String> lastUpdateMap);
-    }
-
-    @Override
-    protected void onCancelled(Void aVoid) {
-        super.onCancelled(aVoid);
-        listener.onFinishUpdating(false, lastUpdateMap);
+    protected Map<String, String> getLastUpdateMap() {
+        return lastUpdateMap;
     }
 }

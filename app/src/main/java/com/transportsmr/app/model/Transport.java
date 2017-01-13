@@ -1,118 +1,105 @@
 package com.transportsmr.app.model;
 
-/**
- * Created by kirill on 12.12.2016.
- */
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Transport {
-    private String type;
+    @SerializedName("number")
+    @Expose
     private String number;
-    private String id;
-    private String time;
-    private String timeInSeconds;
-    private String hullNo;
-    private String stateNumber;
+    @SerializedName("KR_ID")
+    @Expose
+    private String kRID;
+    @SerializedName("modelTitle")
+    @Expose
     private String modelTitle;
-    private boolean forInvalid;
+    @SerializedName("hullNo")
+    @Expose
+    private String hullNo;
+    @SerializedName("nextStopId")
+    @Expose
+    private String nextStopId;
+    @SerializedName("timeInSeconds")
+    @Expose
+    private String timeInSeconds;
+    @SerializedName("stateNumber")
+    @Expose
+    private String stateNumber;
+    @SerializedName("forInvalid")
+    @Expose
+    private String forInvalid;
+    @SerializedName("nextStopName")
+    @Expose
     private String nextStopName;
-    private String remainingLength;
+    @SerializedName("requestedStopId")
+    @Expose
+    private String requestedStopId;
+    @SerializedName("time")
+    @Expose
+    private String time;
+    @SerializedName("type")
+    @Expose
+    private String type;
+    @SerializedName("spanLength")
+    @Expose
     private String spanLength;
-
-    public Transport() {
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
+    @SerializedName("remainingLength")
+    @Expose
+    private String remainingLength;
 
     public String getNumber() {
         return number;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String KR_ID) {
-        this.id = KR_ID;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public String getTimeInSeconds() {
-        return timeInSeconds;
-    }
-
-    public void setTimeInSeconds(String timeInSecond) {
-        this.timeInSeconds = timeInSecond;
-    }
-
-    public String getHullNo() {
-        return hullNo;
-    }
-
-    public void setHullNo(String hullNo) {
-        this.hullNo = hullNo;
-    }
-
-    public String getStateNumber() {
-        return stateNumber;
-    }
-
-    public void setStateNumber(String stateNumber) {
-        this.stateNumber = stateNumber;
+    public String getkRID() {
+        return kRID;
     }
 
     public String getModelTitle() {
         return modelTitle;
     }
 
-    public void setModelTitle(String modelTitle) {
-        this.modelTitle = modelTitle;
+    public String getHullNo() {
+        return hullNo;
     }
 
-    public boolean isForInvalid() {
+    public String getNextStopId() {
+        return nextStopId;
+    }
+
+    public String getTimeInSeconds() {
+        return timeInSeconds;
+    }
+
+    public String getStateNumber() {
+        return stateNumber;
+    }
+
+    public String getForInvalid() {
         return forInvalid;
-    }
-
-    public void setForInvalid(boolean forInvalid) {
-        this.forInvalid = forInvalid;
     }
 
     public String getNextStopName() {
         return nextStopName;
     }
 
-    public void setNextStopName(String nextStopName) {
-        this.nextStopName = nextStopName;
+    public String getRequestedStopId() {
+        return requestedStopId;
     }
 
-    public String getRemainingLength() {
-        return remainingLength;
+    public String getTime() {
+        return time;
     }
 
-    public void setRemainingLength(String remainingLength) {
-        this.remainingLength = remainingLength;
+    public String getType() {
+        return type;
     }
 
     public String getSpanLength() {
         return spanLength;
     }
 
-    public void setSpanLength(String spanLength) {
-        this.spanLength = spanLength;
+    public String getRemainingLength() {
+        return remainingLength;
     }
 }
