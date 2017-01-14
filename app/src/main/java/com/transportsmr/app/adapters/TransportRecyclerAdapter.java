@@ -38,7 +38,7 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     @Override
     public Filter getFilter() {
         if (transportFilter == null)
-            transportFilter = new TransportFilter(this, arrival);
+            transportFilter = new TransportFilter(this);
         return transportFilter;
     }
 
@@ -115,9 +115,9 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
         private TextView nextStop;
         private TextView number;
         private TextView type;
-        public TextView nextTimeCommercial;
-        public LinearLayout nextTimeCommercialBox;
-        public LinearLayout nextTimeBox;
+        private TextView nextTimeCommercial;
+        private LinearLayout nextTimeCommercialBox;
+        private LinearLayout nextTimeBox;
 
         public ViewHolder(View v) {
             super(v);
@@ -137,20 +137,17 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     public static class TransportFilter extends Filter {
 
         private final TransportRecyclerAdapter adapter;
-
-        private final List<ArrivalTransport> originalList;
-
         private final List<ArrivalTransport> filteredList;
 
-        private TransportFilter(TransportRecyclerAdapter adapter, List<ArrivalTransport> originalList) {
+        private TransportFilter(TransportRecyclerAdapter adapter) {
             super();
             this.adapter = adapter;
-            this.originalList = new LinkedList<>(originalList);
             this.filteredList = new ArrayList<>();
         }
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
+            List<ArrivalTransport> originalList = new LinkedList<>(adapter.arrival);
             filteredList.clear();
             final FilterResults results = new FilterResults();
 

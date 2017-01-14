@@ -1,8 +1,11 @@
 package com.transportsmr.app;
 
+import android.Manifest;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -31,7 +34,6 @@ import java.io.Serializable;
 
 
 public class MainActivity extends AppCompatActivity {
-    //public static final String CURRENT_FRAGMENT_KEY = "content";
     public static final String CURRENT_TITLE_KEY = "title";
     private TransportApp app;
     private DrawerLayout drawerLayout;
@@ -77,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         initNavigationView();
 
         if ((savedInstanceState != null)) {
-            //content = getSupportFragmentManager().getFragment(savedInstanceState, CURRENT_FRAGMENT_KEY);\
             String title = savedInstanceState.containsKey(CURRENT_TITLE_KEY) ? savedInstanceState.getString(CURRENT_TITLE_KEY) : null;
             lastArrival = savedInstanceState.containsKey(LAST_ARRIVAL_KEY) ? savedInstanceState.getString(LAST_ARRIVAL_KEY) : null;
             arrivalFilter = savedInstanceState.containsKey(LAST_ARRIVAL_FILTER_KEY) ? savedInstanceState.getSerializable(LAST_ARRIVAL_FILTER_KEY) : null;
@@ -113,6 +114,13 @@ public class MainActivity extends AppCompatActivity {
         searchAdapter = new SearchAdapter(this, null, true);
 
         EventBus.getDefault().register(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_CONTACTS},
+                    1);
+        }
+
     }
 
     private void initNavigationView() {

@@ -193,27 +193,29 @@ public class ArrivalsFragment extends Fragment {
         } catch (NoSuchAlgorithmException e) {
             return;
         }
-
-        context.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                swipeRefreshLayout.setRefreshing(true);
-            }
-        });
+        if (context != null) {
+            context.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    swipeRefreshLayout.setRefreshing(true);
+                }
+            });
+        }
         ((TransportApp) context.getApplication()).getApi().getArrival("getFirstArrivalToStop", ksid, count, "android", "envoy93", sha.toLowerCase()).enqueue(new ArrivalCallback() {
             @Override
             protected void OnPost(final ArrayList<ArrivalTransport> arrival) {
                 transports.clear();
                 transports.addAll(arrival);
-                context.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        transportAdapter.getFilter().filter(filter.getFilterConstraint());
-                        //transportAdapter.notifyDataSetChanged();
-                        swipeRefreshLayout.setRefreshing(false);
-                        emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
-                    }
-                });
+                if (context != null) {
+                    context.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            transportAdapter.getFilter().filter(filter.getFilterConstraint());
+                            swipeRefreshLayout.setRefreshing(false);
+                            emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
+                        }
+                    });
+                }
             }
         });
     }
