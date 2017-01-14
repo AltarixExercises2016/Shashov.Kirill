@@ -53,3 +53,9 @@
 
 <img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/6.png" width="500">
 <img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/7.png" width="500">
+
+###30.12.2016
+* Поиск перенесен в тулбар активити.
+* Некоторые взаимодействия между компонентами переписаны с использованием `EventBus`, например, клик по остановке.
+* В базу данных добавлена таблица с описанием маршрутов
+* В списке прибытия теперь помечены коммерческие автобусы
