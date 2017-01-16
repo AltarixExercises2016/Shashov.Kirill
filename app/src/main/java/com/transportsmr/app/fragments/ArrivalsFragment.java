@@ -178,7 +178,7 @@ public class ArrivalsFragment extends Fragment {
             };
             timer.schedule(timerTask, Constants.UPDATE_TRANSPORT_DELAY, Constants.UPDATE_TRANSPORT_DELAY);
         } catch (IllegalStateException e) {
-            //srt = e.toString(); TODO
+            //TODO
         }
     }
 

@@ -1,6 +1,5 @@
 package com.transportsmr.app;
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,39 +7,44 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import com.transportsmr.app.fragments.UpdatingFragment;
+import com.victor.loading.rotate.RotateLoading;
 
 /**
  * Created by kirill on 24.11.2016.
  */
 public class SplashScreenActivity extends AppCompatActivity implements UpdatingFragment.OnUpdatingListener {
-    //TODO update design
-    private UpdatingFragment mTaskFragment;
-    private static final String TAG_TASK_FRAGMENT = "task_fragment";
-    private ProgressDialog progress;
+
+    private UpdatingFragment taskFragment;
+    private static final String TAG_TASK_FRAGMENT = "taskFragment";
     private AlertDialog dialog;
     private boolean isUpdating = false;
     private boolean isDialog = false;
     public static final String IS_UPDATING = "isUpdating";
     public static final String IS_DIALOG = "isDialog";
+    private RotateLoading rotateLoading;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_splash);
-
         FragmentManager fm = getSupportFragmentManager();
-        mTaskFragment = (UpdatingFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
-        if (mTaskFragment == null) {
-            mTaskFragment = new UpdatingFragment();
-            fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
+        taskFragment = (UpdatingFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
+        if (taskFragment == null) {
+            taskFragment = new UpdatingFragment();
+            fm.beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
         }
-
+        rotateLoading = (RotateLoading) findViewById(R.id.rotateloading);
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+
+        if (rotateLoading == null) {
+            rotateLoading = (RotateLoading) findViewById(R.id.rotateloading);
+        }
+
         if (isUpdating) {
             onHaveUpdate();
         }
@@ -54,7 +58,7 @@ public class SplashScreenActivity extends AppCompatActivity implements UpdatingF
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (isUpdating) {
-            progress.dismiss();
+            rotateLoading.start();
         }
         if (isDialog) {
             dialog.dismiss();
@@ -78,7 +82,7 @@ public class SplashScreenActivity extends AppCompatActivity implements UpdatingF
     @Override
     public void onFinishUpdating(boolean isSuccessful) {
         if (isUpdating) {
-            progress.dismiss();
+            rotateLoading.stop();
             isUpdating = false;
         }
 
@@ -104,7 +108,7 @@ public class SplashScreenActivity extends AppCompatActivity implements UpdatingF
         adb.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                mTaskFragment.startUpdate();
+                taskFragment.startUpdate();
             }
         });
         adb.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -120,10 +124,6 @@ public class SplashScreenActivity extends AppCompatActivity implements UpdatingF
     @Override
     public void onHaveUpdate() {
         isUpdating = true;
-        progress = new ProgressDialog(this);
-        progress.setCancelable(false);
-        progress.setMessage(getString(R.string.update_info));
-        progress.setTitle(getString(R.string.update));
-        progress.show();
+        rotateLoading.start();
     }
 }
