@@ -16,7 +16,7 @@
 
     <!-- arrival-->
     <string name="arrival_time_to_next">Через</string>
-    <string name="arrival_minute">" мин."</string>
+    <string name="arrival_minute">" мин.  "</string>
     <string name="arrival_minutes">" минут"</string>
 
     <!--settings-->

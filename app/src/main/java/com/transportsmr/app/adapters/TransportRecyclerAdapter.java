@@ -2,6 +2,7 @@ package com.transportsmr.app.adapters;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,12 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.model.ArrivalTransport;
 import com.transportsmr.app.model.Transport;
+import com.transportsmr.app.utils.BabushkaText;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -57,38 +58,78 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
 
         holder.number.setText(arrivalTransport.getNumber());
         holder.number.setBackground(ContextCompat.getDrawable(context, getBackgroundFromType(arrivalTransport.getType())));
-        holder.type.setText(arrivalTransport.getType());
+
+        initHeader(holder,
+                transports.get(0).getTime() + context.getString(R.string.arrival_minute),
+                arrivalTransport.getType());
+
         holder.nextStop.setText(transports.get(0).getRemainingLength() + context.getString(R.string.length_to) + transports.get(0).getNextStopName());
-        holder.time.setText(transports.get(0).getTime() + context.getString(R.string.arrival_minute));
 
         //next time
         StringBuilder sb = new StringBuilder(" ");
         StringBuilder sbCommercial = new StringBuilder(" ");
         int i = 0;
+        int iC = 0;
         for (Transport transport : transports) {
-            if (i == 5) break;
             if (app != null && app.getRoutes().containsKey(transport.getkRID())) {
                 if (app.getRoutes().get(transport.getkRID()).getAffiliationID().equals("2")) {
-                    sbCommercial.append(" ").append(transport.getTime()).append(", ");
+                    if (i < 5)
+                        sbCommercial.append(" ").append(transport.getTime()).append(", ");
+                    i++;
                 } else {
-                    sb.append(" ").append(transport.getTime()).append(", ");
+                    if (iC < 5)
+                        sb.append(" ").append(transport.getTime()).append(", ");
+                    iC++;
                 }
 
             }
-            i++;
         }
-        updateTimeBox(sb, holder.nextTime, holder.nextTimeBox);
-        updateTimeBox(sbCommercial, holder.nextTimeCommercial, holder.nextTimeCommercialBox);
+        initTimeView(sb, holder.nextTime);
+        initTimeView(sbCommercial, holder.nextTimeCommercial);
 
     }
 
-    private void updateTimeBox(StringBuilder text, TextView textView, LinearLayout timeBox) {
+    private void initHeader(ViewHolder holder, String time, String type) {
+        holder.header.reset();
+        holder.header.addPiece(new BabushkaText.Piece.Builder(time.toUpperCase())
+                .textColor(context.getResources().getColor(R.color.black))
+                .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
+                .build()
+        );
+
+        holder.header.addPiece(new BabushkaText.Piece.Builder(type.toUpperCase())
+                .textColor(context.getResources().getColor(R.color.gray))
+                .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
+                .build()
+        );
+
+        holder.header.display();
+    }
+
+    private void initTimeView(StringBuilder text, BabushkaText textView) {
         if (text.length() > 1) {
             text.delete(text.length() - 2, text.length() - 1);
-            textView.setText(text);
-            timeBox.setVisibility(View.VISIBLE);
+            textView.reset();
+            textView.addPiece(new BabushkaText.Piece.Builder(context.getResources().getString(R.string.arrival_time_to_next))
+                    .textColor(context.getResources().getColor(R.color.gray))
+                    .textSize(-1)
+                    .build()
+            );
+            textView.addPiece(new BabushkaText.Piece.Builder(text.toString())
+                    .textColor(context.getResources().getColor(R.color.darkblue2))
+                    .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
+                    .style(Typeface.BOLD)
+                    .build()
+            );
+            textView.addPiece(new BabushkaText.Piece.Builder(context.getResources().getString(R.string.arrival_minutes))
+                    .textColor(context.getResources().getColor(R.color.gray))
+                    .textSize(-1)
+                    .build()
+            );
+            textView.display();
+            textView.setVisibility(View.VISIBLE);
         } else {
-            timeBox.setVisibility(View.GONE);
+            textView.setVisibility(View.GONE);
         }
     }
 
@@ -110,26 +151,20 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView nextTime;
-        private TextView time;
+        private BabushkaText header;
         private TextView nextStop;
         private TextView number;
-        private TextView type;
-        private TextView nextTimeCommercial;
-        private LinearLayout nextTimeCommercialBox;
-        private LinearLayout nextTimeBox;
+        private BabushkaText nextTime;
+        private BabushkaText nextTimeCommercial;
 
         public ViewHolder(View v) {
             super(v);
             number = (TextView) v.findViewById(R.id.transport_number);
-            type = (TextView) v.findViewById(R.id.transport_type);
-            nextTime = (TextView) v.findViewById(R.id.transport_next_time);
-            time = (TextView) v.findViewById(R.id.transport_time);
+            //type = (TextView) v.findViewById(R.id.transport_type);
+            nextTime = (BabushkaText) v.findViewById(R.id.transport_next_time);
+            header = (BabushkaText) v.findViewById(R.id.transport_time_type);
             nextStop = (TextView) v.findViewById(R.id.transport_next_stop);
-            nextTimeCommercial = (TextView) v.findViewById(R.id.transport_next_time_commercial);
-            nextTimeBox = (LinearLayout) v.findViewById(R.id.transport_next_time_mun);
-            nextTimeCommercialBox = (LinearLayout) v.findViewById(R.id.transport_next_time_com);
-
+            nextTimeCommercial = (BabushkaText) v.findViewById(R.id.transport_next_time_commercial);
         }
 
     }
