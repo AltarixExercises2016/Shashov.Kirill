@@ -3,6 +3,8 @@ package com.transportsmr.app.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,7 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageSwitcher;
 import android.widget.TextView;
+import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
@@ -24,6 +28,7 @@ import com.transportsmr.app.events.FavoriteUpdateEvent;
 import com.transportsmr.app.model.ArrivalTransport;
 import com.transportsmr.app.model.Stop;
 import com.transportsmr.app.model.StopDao;
+import com.transportsmr.app.utils.BabushkaText;
 import com.transportsmr.app.utils.Constants;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -134,6 +139,30 @@ public class ArrivalsFragment extends Fragment {
         initFilter(view, R.id.arrival_filter_tram, filter.SHOW_TRAM);
         initFilter(view, R.id.arrival_filter_metro, filter.SHOW_METRO);
         initFilter(view, R.id.arrival_filter_trolleybus, filter.SHOW_TROLLEYBUS);
+
+        final ImageSwitcher info_switcher = (ImageSwitcher) view.findViewById(R.id.info_switcher);
+        final ExpandableLinearLayout expandableLinearLayout = (ExpandableLinearLayout) view.findViewById(R.id.arrival_expandableLayout);
+        info_switcher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (expandableLinearLayout.isExpanded()) {
+                    expandableLinearLayout.collapse();
+                } else {
+                    expandableLinearLayout.expand();
+                }
+                info_switcher.showNext();
+            }
+        });
+
+        initTransportList(view, R.id.arrival_buses_municipal, stop.getBusesMunicipal(), getString(R.string.bus_municipal));
+        initTransportList(view, R.id.arrival_buses_commercial, stop.getBusesCommercial(), getString(R.string.bus_commercial));
+        initTransportList(view, R.id.arrival_buses_prigorod, stop.getBusesPrigorod(), getString(R.string.bus_prigorod));
+        initTransportList(view, R.id.arrival_buses_season, stop.getBusesSeason(), getString(R.string.bus_season));
+        initTransportList(view, R.id.arrival_buses_special, stop.getBusesSpecial(), getString(R.string.bus_special));
+        initTransportList(view, R.id.arrival_trams, stop.getTrams(), getString(R.string.tram));
+        initTransportList(view, R.id.arrival_trolleybuses, stop.getTrolleybuses(), getString(R.string.troll));
+        initTransportList(view, R.id.arrival_metros, stop.getMetros(), getString(R.string.metro));
+
         return view;
     }
 
@@ -159,6 +188,30 @@ public class ArrivalsFragment extends Fragment {
                 updateArrival(stop.getKs_id());
             }
         });
+    }
+
+    private void initTransportList(View layout, int textViewId, String text, String label) {
+        BabushkaText textView = (BabushkaText) layout.findViewById(textViewId);
+        if ((text == null) || text.isEmpty()) {
+            textView.setVisibility(View.GONE);
+            return;
+        }
+        textView.reset();
+        textView.addPiece(new BabushkaText.Piece.Builder(label + "\n")
+                .textSize((int) context.getResources().getDimension(R.dimen.material_text_caption))
+                .style(Typeface.BOLD)
+                .textColor(getResources().getColor(R.color.backgr1))
+                .build()
+        );
+
+        textView.addPiece(new BabushkaText.Piece.Builder(text)
+                .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
+                .textColor(Color.WHITE)
+                .build()
+        );
+
+        textView.display();
+        textView.setVisibility(View.VISIBLE);
     }
 
     @Override

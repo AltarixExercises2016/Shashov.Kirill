@@ -74,4 +74,5 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.victor:lib:1.0.4'
+    compile 'com.github.aakira:expandable-layout:1.6.0@aar'
 }

@@ -1,14 +1,14 @@
 <RelativeLayout android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+                android:layout_width="match_parent"
+                xmlns:android="http://schemas.android.com/apk/res/android">
 
     <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/refresh"
-        android:layout_above="@+id/filters"
-        android:layout_alignParentTop="true"
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent">
+                                                  xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                  android:id="@+id/refresh"
+                                                  android:layout_above="@+id/filters"
+                                                  android:layout_alignParentTop="true"
+                                                  android:layout_width="match_parent"
+                                                  android:layout_height="fill_parent">
 
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -29,7 +29,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="100dp"
                         android:src="@drawable/city"
-                        android:scaleType="centerCrop" />
+                        android:scaleType="centerCrop"/>
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -52,7 +52,7 @@
                                 android:background="#99000000"
                                 android:textAllCaps="true"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
+                                android:layout_height="wrap_content"/>
 
                             <TextView
                                 android:id="@+id/stop_direction_direction"
@@ -64,7 +64,7 @@
                                 android:background="#99000000"
                                 android:textColor="@color/white"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
+                                android:layout_height="wrap_content"/>
 
                             <TextView
                                 android:id="@+id/stop_direction_street"
@@ -75,20 +75,117 @@
                                 android:background="#99000000"
                                 android:textColor="@color/white"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
+                                android:layout_height="wrap_content"/>
                         </LinearLayout>
 
-                        <com.github.ivbaranov.mfb.MaterialFavoriteButton
-                            android:id="@+id/stop_direction_favorite"
+                        <LinearLayout
                             android:layout_alignParentRight="true"
-                            app:mfb_animate_favorite="true"
-                            app:mfb_animate_unfavorite="false"
-                            app:mfb_color="white"
-                            app:mfb_padding="12"
+                            android:orientation="vertical"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content">
+
+                            <com.github.ivbaranov.mfb.MaterialFavoriteButton
+                                android:id="@+id/stop_direction_favorite"
+                                app:mfb_animate_favorite="true"
+                                app:mfb_animate_unfavorite="false"
+                                app:mfb_color="white"
+                                app:mfb_padding="12"
+                                android:layout_gravity="center_horizontal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <ImageSwitcher
+                                android:id="@+id/info_switcher"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal">
+
+                                <ImageView
+                                    android:id="@+id/info"
+                                    android:src="@drawable/ic_info"
+                                    android:layout_height="wrap_content"
+                                    android:layout_width="wrap_content"/>
+
+                                <ImageView
+                                    android:id="@+id/info_checked"
+                                    android:src="@drawable/ic_info_checked"
+                                    android:layout_height="wrap_content"
+                                    android:layout_width="wrap_content"/>
+                            </ImageSwitcher>
+                        </LinearLayout>
+
                     </RelativeLayout>
                 </FrameLayout>
+
+                <com.github.aakira.expandablelayout.ExpandableLinearLayout
+                    android:id="@+id/arrival_expandableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    app:ael_expanded="false"
+                    app:ael_duration="500"
+                    android:background="@color/black"
+                    app:ael_interpolator="bounce"
+                    app:ael_orientation="vertical">
+
+                    <com.transportsmr.app.utils.BabushkaText
+                        android:id="@+id/arrival_buses_municipal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:text="sample"/>
+
+                    <com.transportsmr.app.utils.BabushkaText
+                        android:id="@+id/arrival_buses_commercial"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:text="sample"/>
+
+                    <com.transportsmr.app.utils.BabushkaText
+                        android:id="@+id/arrival_buses_prigorod"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:text="sample"/>
+
+                    <com.transportsmr.app.utils.BabushkaText
+                        android:id="@+id/arrival_buses_season"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:text="sample"/>
+
+                    <com.transportsmr.app.utils.BabushkaText
+                        android:id="@+id/arrival_buses_special"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:text="sample"/>
+
+                    <com.transportsmr.app.utils.BabushkaText
+                        android:id="@+id/arrival_trams"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:text="sample"/>
+
+                    <com.transportsmr.app.utils.BabushkaText
+                        android:id="@+id/arrival_trolleybuses"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:text="sample"/>
+
+                    <com.transportsmr.app.utils.BabushkaText
+                        android:id="@+id/arrival_metros"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:text="sample"/>
+
+                </com.github.aakira.expandablelayout.ExpandableLinearLayout>
 
                 <TextView
                     android:id="@+id/empty_view"
@@ -99,13 +196,13 @@
                     android:visibility="gone"
                     style="@style/TextAppearance.AppCompat.Body1"
                     android:padding="10dp"
-                    android:text="@string/no_data_available" />
+                    android:text="@string/no_data_available"/>
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rvItems"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"/>
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>
@@ -129,7 +226,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="true"
-                android:button="@drawable/bus_button" />
+                android:button="@drawable/bus_button"/>
 
             <CheckBox
                 android:id="@+id/arrival_filter_tram"
@@ -137,7 +234,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="true"
-                android:button="@drawable/tram_button" />
+                android:button="@drawable/tram_button"/>
 
             <CheckBox
                 android:id="@+id/arrival_filter_trolleybus"
@@ -145,7 +242,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="true"
-                android:button="@drawable/trolleybus_button" />
+                android:button="@drawable/trolleybus_button"/>
 
             <CheckBox
                 android:id="@+id/arrival_filter_metro"
@@ -153,7 +250,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="true"
-                android:button="@drawable/metro_button" />
+                android:button="@drawable/metro_button"/>
         </TableRow>
     </TableLayout>
 </RelativeLayout>
