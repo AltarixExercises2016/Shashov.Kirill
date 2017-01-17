@@ -82,6 +82,10 @@ public class BabushkaText extends TextView {
         mPieces.add(aPiece);
     }
 
+    public void addPieces(List<Piece> aPieces) {
+        mPieces.addAll(aPieces);
+    }
+
     /**
      * Adds a Piece at this specific location. The underlying data structure is a
      * {@link java.util.List}, so expect the same type of behaviour.

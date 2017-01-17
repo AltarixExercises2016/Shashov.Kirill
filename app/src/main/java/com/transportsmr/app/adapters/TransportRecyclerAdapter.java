@@ -2,6 +2,7 @@ package com.transportsmr.app.adapters;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.model.ArrivalTransport;
 import com.transportsmr.app.model.Transport;
 import com.transportsmr.app.utils.BabushkaText;
+import com.transportsmr.app.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -26,6 +28,7 @@ import java.util.List;
  */
 public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecyclerAdapter.ViewHolder> implements Filterable {
     private final TransportApp app;
+    private final SharedPreferences sPref;
     private Context context;
     private List<ArrivalTransport> arrival;
     private Filter transportFilter;
@@ -34,6 +37,7 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
         this.app = application instanceof TransportApp ? (TransportApp) application : null;
         arrival = dataset;
         this.context = context;
+        sPref = context.getSharedPreferences(Constants.SHARED_NAME, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -55,6 +59,7 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final ArrivalTransport arrivalTransport = arrival.get(position);
         final List<Transport> transports = arrivalTransport.getTransports();
+        int markCommercial = sPref.getInt(Constants.SHARED_MARK_COMMERCIAL, Constants.DEFAULT_MARK_COMMERCIAL); //0-new line 1-color 2-none
 
         holder.number.setText(arrivalTransport.getNumber());
         holder.number.setBackground(ContextCompat.getDrawable(context, getBackgroundFromType(arrivalTransport.getType())));
@@ -68,24 +73,40 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
         //next time
         StringBuilder sb = new StringBuilder(" ");
         StringBuilder sbCommercial = new StringBuilder(" ");
+        ArrayList<BabushkaText.Piece> buses = new ArrayList<>();
+        ArrayList<BabushkaText.Piece> busesCommercial = new ArrayList<>();
+
         int i = 0;
         int iC = 0;
+        BabushkaText.Piece.Builder builder = null;
         for (Transport transport : transports) {
-            if (app != null && app.getRoutes().containsKey(transport.getkRID())) {
-                if (app.getRoutes().get(transport.getkRID()).getAffiliationID().equals("2")) {
-                    if (i < 5)
-                        sbCommercial.append(" ").append(transport.getTime()).append(", ");
-                    i++;
-                } else {
-                    if (iC < 5)
-                        sb.append(" ").append(transport.getTime()).append(", ");
-                    iC++;
-                }
+            builder = new BabushkaText.Piece.Builder(" " + transport.getTime() + " ")
+                    .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
+                    .textColor(context.getResources().getColor(R.color.darkblue2))
+                    .style(Typeface.BOLD);
+            if (app.isCommercialBus(transport.getkRID())) {
+                if (iC++ < 5) {
+                    if (markCommercial == 2) { //none mark
+                        buses.add(builder.build());
+                    } else if (markCommercial == 0) { // new line
+                        busesCommercial.add(builder.build());
+                    } else if (markCommercial == 1) { //color
 
+                        buses.add(builder
+                                .textColor(context.getResources().getColor(R.color.darkred))
+                                .build());
+                    }
+                }
+            } else {
+                if (i < 5) {
+                    buses.add(builder.build());
+                }
             }
         }
-        initTimeView(sb, holder.nextTime);
-        initTimeView(sbCommercial, holder.nextTimeCommercial);
+
+        initTimeView(buses, holder.nextTime);
+
+        initTimeView(busesCommercial, holder.nextTimeCommercial);
 
     }
 
@@ -102,25 +123,20 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
                 .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
                 .build()
         );
-
         holder.header.display();
     }
 
-    private void initTimeView(StringBuilder text, BabushkaText textView) {
-        if (text.length() > 1) {
-            text.delete(text.length() - 2, text.length() - 1);
+    private void initTimeView(ArrayList<BabushkaText.Piece> peaces, BabushkaText textView) {
+        if (peaces.size() > 0) {
+            //text.delete(text.length() - 2, text.length() - 1); TODO
             textView.reset();
             textView.addPiece(new BabushkaText.Piece.Builder(context.getResources().getString(R.string.arrival_time_to_next))
                     .textColor(context.getResources().getColor(R.color.gray))
                     .textSize(-1)
                     .build()
             );
-            textView.addPiece(new BabushkaText.Piece.Builder(text.toString())
-                    .textColor(context.getResources().getColor(R.color.darkblue2))
-                    .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
-                    .style(Typeface.BOLD)
-                    .build()
-            );
+            textView.addPieces(peaces);
+
             textView.addPiece(new BabushkaText.Piece.Builder(context.getResources().getString(R.string.arrival_minutes))
                     .textColor(context.getResources().getColor(R.color.gray))
                     .textSize(-1)
@@ -160,7 +176,6 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
         public ViewHolder(View v) {
             super(v);
             number = (TextView) v.findViewById(R.id.transport_number);
-            //type = (TextView) v.findViewById(R.id.transport_type);
             nextTime = (BabushkaText) v.findViewById(R.id.transport_next_time);
             header = (BabushkaText) v.findViewById(R.id.transport_time_type);
             nextStop = (TextView) v.findViewById(R.id.transport_next_stop);

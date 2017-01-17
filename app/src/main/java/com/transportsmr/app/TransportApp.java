@@ -86,6 +86,14 @@ public class TransportApp extends Application {
         return loc;
     }
 
+    public boolean isCommercialBus(String krId) {
+        if (getRoutes().containsKey(krId) && getRoutes().get(krId).getAffiliationID().equals("2")) {
+            return true;
+        }
+
+        return false;
+    }
+
     public Map<String, Route> getRoutes() {
         return routes;
     }

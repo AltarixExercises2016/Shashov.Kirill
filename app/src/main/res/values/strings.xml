@@ -14,7 +14,7 @@
     <string name="stops_nearest">Ближайшие</string>
 
     <!-- arrival-->
-    <string name="arrival_time_to_next">Через</string>
+    <string name="arrival_time_to_next">"Через "</string>
     <string name="arrival_minute">" мин.  "</string>
     <string name="arrival_minutes">" минут"</string>
     <string name="length_to">"м. до "</string>
@@ -32,6 +32,13 @@
 
     <!--settings-->
     <string name="settings_distance">Радиус поиска остановок в метрах:</string>
+    <string name="settings_commercial">Выделять коммерческие автобусы:</string>
+    <string-array name="settings_commercial_array">
+        <item>Отдельный список</item>
+        <item>Цвет</item>
+        <item>Не выделять</item>
+    </string-array>
+
 
     <!-- menu -->
     <string name="exit">Выход</string>

@@ -10,6 +10,7 @@ public class Constants {
     public static final String LAST_UPDATES_URL = "http://tosamara.ru/api/classifiers";
 
     public static final int DEFAULT_DISTANCE = 500;
+    public static final int DEFAULT_MARK_COMMERCIAL = 0;
     public static final int NETWORK_TIMEOUT = 10000;
     public static final String TOSAMARA_PASSWORD = "J2QMMls";
 
@@ -21,6 +22,7 @@ public class Constants {
     public static final String SHARED_ROUTES_FILENAME = "routes.xml";
     public static final String SHARED_ROUTES_AND_STOPS_FILENAME = "routesAndStopsCorrespondence.xml";
     public static final String SHARED_DISTANCE_SEARCH_STOPS = "distance_stops";
+    public static final String SHARED_MARK_COMMERCIAL = "mark_commercial";
     //public static final String SHARED_STOPS_LAST_UPDATE = "stops_last_update";
 
 
