@@ -268,6 +268,9 @@ public class BabushkaText extends TextView {
             this.text = text;
         }
 
+        public String getText() {
+            return text;
+        }
 
         /**
          * Sets the text color of this Piece. If you're creating a new Piece, you should do so using it's

@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.Application;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.*;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -16,8 +18,6 @@ import com.transportsmr.app.fragments.base.BaseStopsRecyclerFragment;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.List;
 
 public class StopsFragment extends Fragment {
     private StopsPagerAdapter stopsPagerAdapter;
@@ -35,9 +35,9 @@ public class StopsFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
+    public void onDestroy() {
         EventBus.getDefault().unregister(this);
-        super.onStop();
+        super.onDestroy();
     }
 
     @Override

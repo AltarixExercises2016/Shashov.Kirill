@@ -27,6 +27,8 @@ import java.util.List;
  * Created by kirill on 12.12.2016.
  */
 public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecyclerAdapter.ViewHolder> implements Filterable {
+    final static int MAX_BUSES = 5;
+    final static int MAX_BUSES_COMMERCIAL = 5;
     private final TransportApp app;
     private final SharedPreferences sPref;
     private Context context;
@@ -71,43 +73,48 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
         holder.nextStop.setText(transports.get(0).getRemainingLength() + context.getString(R.string.length_to) + transports.get(0).getNextStopName());
 
         //next time
-        StringBuilder sb = new StringBuilder(" ");
-        StringBuilder sbCommercial = new StringBuilder(" ");
         ArrayList<BabushkaText.Piece> buses = new ArrayList<>();
         ArrayList<BabushkaText.Piece> busesCommercial = new ArrayList<>();
-
+        ArrayList<BabushkaText.Piece> pieces = null;
         int i = 0;
         int iC = 0;
         BabushkaText.Piece.Builder builder = null;
         for (Transport transport : transports) {
-            builder = new BabushkaText.Piece.Builder(" " + transport.getTime() + " ")
+            builder = new BabushkaText.Piece.Builder(" " + transport.getTime())
                     .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
                     .textColor(context.getResources().getColor(R.color.darkblue2))
                     .style(Typeface.BOLD);
+            pieces = null;
             if (app.isCommercialBus(transport.getkRID())) {
-                if (iC++ < 5) {
-                    if (markCommercial == 2) { //none mark
-                        buses.add(builder.build());
-                    } else if (markCommercial == 0) { // new line
-                        busesCommercial.add(builder.build());
-                    } else if (markCommercial == 1) { //color
-
-                        buses.add(builder
-                                .textColor(context.getResources().getColor(R.color.darkred))
-                                .build());
+                if (markCommercial == 2) { //none mark
+                    if (i++ < MAX_BUSES) {
+                        pieces = buses;
+                    }
+                } else if (markCommercial == 0) { // new line
+                    if (iC++ < MAX_BUSES_COMMERCIAL) {
+                        pieces = busesCommercial;
+                    }
+                } else { //color
+                    if (i++ < MAX_BUSES) {
+                        pieces = buses;
+                        builder.textColor(context.getResources().getColor(R.color.darkred));
                     }
                 }
             } else {
-                if (i < 5) {
-                    buses.add(builder.build());
+                if (i++ < MAX_BUSES) {
+                    pieces = buses;
                 }
+            }
+            if (pieces != null) {
+                pieces.add(builder.build());
+                pieces.add(new BabushkaText.Piece.Builder(", ")
+                        .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
+                        .build());
             }
         }
 
         initTimeView(buses, holder.nextTime);
-
         initTimeView(busesCommercial, holder.nextTimeCommercial);
-
     }
 
     private void initHeader(ViewHolder holder, String time, String type) {
@@ -126,16 +133,16 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
         holder.header.display();
     }
 
-    private void initTimeView(ArrayList<BabushkaText.Piece> peaces, BabushkaText textView) {
-        if (peaces.size() > 0) {
-            //text.delete(text.length() - 2, text.length() - 1); TODO
+    private void initTimeView(ArrayList<BabushkaText.Piece> pieces, BabushkaText textView) {
+        if (pieces.size() > 0) {
+            pieces.get(pieces.size() - 1).setText(" ");
             textView.reset();
             textView.addPiece(new BabushkaText.Piece.Builder(context.getResources().getString(R.string.arrival_time_to_next))
                     .textColor(context.getResources().getColor(R.color.gray))
                     .textSize(-1)
                     .build()
             );
-            textView.addPieces(peaces);
+            textView.addPieces(pieces);
 
             textView.addPiece(new BabushkaText.Piece.Builder(context.getResources().getString(R.string.arrival_minutes))
                     .textColor(context.getResources().getColor(R.color.gray))
