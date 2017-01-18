@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.transportsmr.app.R;
 import com.transportsmr.app.events.FavoriteUpdateEvent;
@@ -53,16 +55,17 @@ public class StopsRecyclerAdapter extends RecyclerView.Adapter<StopsRecyclerAdap
         }
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView street;
-        private LinearLayout stopDirections;
-        public TextView title;
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.stop_direction_street)
+        TextView street;
+        @BindView(R.id.stop_directions)
+        LinearLayout stopDirections;
+        @BindView(R.id.stop_title)
+        TextView title;
 
         public ViewHolder(View v) {
             super(v);
-            title = (TextView) v.findViewById(R.id.stopTitle);
-            street = (TextView) v.findViewById(R.id.stop_direction_street);
-            stopDirections = (LinearLayout) v.findViewById(R.id.stopDirections);
+            ButterKnife.bind(this, v);
         }
 
     }

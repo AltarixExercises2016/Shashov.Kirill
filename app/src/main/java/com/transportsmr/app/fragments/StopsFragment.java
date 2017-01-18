@@ -1,6 +1,5 @@
 package com.transportsmr.app.fragments;
 
-import android.app.Activity;
 import android.app.Application;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -12,16 +11,20 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import com.transportsmr.app.R;
-import com.transportsmr.app.events.FavoriteUpdateEvent;
 import com.transportsmr.app.fragments.base.BaseStopsRecyclerFragment;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 public class StopsFragment extends Fragment {
     private StopsPagerAdapter stopsPagerAdapter;
-    private Activity context;
+    private Unbinder unbinder;
+
+    @BindView(R.id.viewpager)
+    ViewPager viewPager;
+    @BindView(R.id.stops_pager_strip_title)
+    PagerTitleStrip pagerTabStrip;
 
     public StopsFragment() {
     }
@@ -29,40 +32,26 @@ public class StopsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = getActivity();
-        stopsPagerAdapter = new StopsPagerAdapter(getChildFragmentManager(), context.getApplication());
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
+        stopsPagerAdapter = new StopsPagerAdapter(getChildFragmentManager(), getActivity().getApplication());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_stops, container, false);
-
+        unbinder = ButterKnife.bind(this, view);
         //neatest / favorite list
-        ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
         viewPager.setAdapter(stopsPagerAdapter);
-        PagerTitleStrip pagerTabStrip = (PagerTitleStrip) view.findViewById(R.id.stops_pager_strip_title);
         pagerTabStrip.setTextColor(Color.BLACK);
 
         return view;
     }
 
-
-
-    @Subscribe(threadMode = ThreadMode.MAIN,priority = 2)
-    public void onChangeFavorite(FavoriteUpdateEvent event) {
-        if (stopsPagerAdapter != null) {
-            stopsPagerAdapter.onFavoriteChanged();
-        }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
-
 
     public static class StopsPagerAdapter extends FragmentPagerAdapter {
         public static final int NEAREST_TAB_POSITION = 0;
@@ -100,16 +89,6 @@ public class StopsFragment extends Fragment {
         @Override
         public CharSequence getPageTitle(int position) {
             return (position == NEAREST_TAB_POSITION) ? app.getString(R.string.stops_nearest) : app.getString(R.string.stops_favorite);
-        }
-
-        public void onFavoriteChanged() {
-            if (nearestFragment != null) {
-                nearestFragment.onFavoriteChanged();
-            }
-
-            if (favoriteFragment != null) {
-                favoriteFragment.onFavoriteChanged();
-            }
         }
     }
 }

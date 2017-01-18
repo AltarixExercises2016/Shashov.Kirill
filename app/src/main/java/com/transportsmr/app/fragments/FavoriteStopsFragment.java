@@ -2,9 +2,12 @@ package com.transportsmr.app.fragments;
 
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.adapters.StopsRecyclerAdapter;
+import com.transportsmr.app.events.FavoriteUpdateEvent;
 import com.transportsmr.app.fragments.base.BaseStopsRecyclerFragment;
 import com.transportsmr.app.model.Stop;
 import com.transportsmr.app.model.StopDao;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.greenrobot.greendao.query.WhereCondition;
 
 import java.util.ArrayList;
@@ -31,7 +34,8 @@ public class FavoriteStopsFragment extends BaseStopsRecyclerFragment {
     }
 
     @Override
-    public void onFavoriteChanged() {
+    @Subscribe(threadMode = ThreadMode.MAIN, priority = 2)
+    public void onChangeFavorite(FavoriteUpdateEvent event) {
         updateStops();
     }
 }

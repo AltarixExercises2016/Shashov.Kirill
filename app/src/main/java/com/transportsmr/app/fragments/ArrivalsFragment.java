@@ -1,8 +1,6 @@
 package com.transportsmr.app.fragments;
 
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -18,6 +16,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageSwitcher;
 import android.widget.TextView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.transportsmr.app.R;
@@ -30,9 +31,11 @@ import com.transportsmr.app.model.Stop;
 import com.transportsmr.app.model.StopDao;
 import com.transportsmr.app.utils.BabushkaText;
 import com.transportsmr.app.utils.Constants;
+import com.transportsmr.app.utils.ToSamaraApi;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import retrofit2.Call;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -46,14 +49,26 @@ public class ArrivalsFragment extends Fragment {
     private List<ArrivalTransport> transports;
     private Stop stop;
     private TransportRecyclerAdapter transportAdapter;
-    private Activity context;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private TextView emptyView;
     private Timer timer;
     private TimerTask timerTask;
     private Filter filter;
-    private RecyclerView transportRecyclerView;
-    private MaterialFavoriteButton fav;
+    private Unbinder unbinder;
+    private Call<ToSamaraApi.ArrivalResponse> responseCall;
+
+    @BindView(R.id.stop_direction_favorite)
+    MaterialFavoriteButton fav;
+    @BindView(R.id.empty_view)
+    TextView emptyView;
+    @BindView(R.id.rv_items)
+    RecyclerView transportRecyclerView;
+    @BindView(R.id.refresh)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.stop_direction_title)
+    TextView directionTitle;
+    @BindView(R.id.stop_direction_street)
+    TextView directionStreet;
+    @BindView(R.id.stop_direction_direction)
+    TextView directionDirection;
 
     public static ArrivalsFragment newInstance(String stopKsId) {
         ArrivalsFragment fragment = new ArrivalsFragment();
@@ -79,9 +94,8 @@ public class ArrivalsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = getActivity();
         transports = new ArrayList<>();
-        transportAdapter = new TransportRecyclerAdapter(context, context.getApplication(), transports);
+        transportAdapter = new TransportRecyclerAdapter(getContext(), getActivity().getApplication(), transports);
         filter = new Filter(this);
 
         if (getArguments() != null) {
@@ -96,21 +110,13 @@ public class ArrivalsFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        //setRetainInstance(true);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_arrivals, container, false);
-
-        ((TextView) view.findViewById(R.id.stop_direction_title)).setText(stop.getTitle());
-        ((TextView) view.findViewById(R.id.stop_direction_street)).setText(stop.getAdjacentStreet());
-        ((TextView) view.findViewById(R.id.stop_direction_direction)).setText(stop.getDirection());
-
-        fav = (MaterialFavoriteButton) view.findViewById(R.id.stop_direction_favorite);
+        unbinder = ButterKnife.bind(this, view);
+        directionTitle.setText(stop.getTitle());
+        directionStreet.setText(stop.getAdjacentStreet());
+        directionDirection.setText(stop.getDirection());
         fav.setFavorite(stop.getFavorite(), false);
         fav.setOnFavoriteChangeListener(new MaterialFavoriteButton.OnFavoriteChangeListener() {
             @Override
@@ -119,12 +125,9 @@ public class ArrivalsFragment extends Fragment {
             }
         });
 
-        emptyView = (TextView) view.findViewById(R.id.empty_view);
-        transportRecyclerView = (RecyclerView) view.findViewById(R.id.rvItems);
-        transportRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        transportRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         transportRecyclerView.setAdapter(transportAdapter);
         transportRecyclerView.setNestedScrollingEnabled(false);
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
 
         if (savedInstanceState != null) {
             //filters
@@ -167,7 +170,7 @@ public class ArrivalsFragment extends Fragment {
     }
 
     private void initFilter(View layout, int filterViewId, final String filterKey) {
-        CheckBox isBusCheckBox = (CheckBox) layout.findViewById(filterViewId);
+        CheckBox isBusCheckBox = ButterKnife.findById(layout, filterViewId);
         isBusCheckBox.setChecked(filter.getFiltersMap().get(filterKey));
         isBusCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -181,7 +184,6 @@ public class ArrivalsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -198,14 +200,14 @@ public class ArrivalsFragment extends Fragment {
         }
         textView.reset();
         textView.addPiece(new BabushkaText.Piece.Builder(label + "\n")
-                .textSize((int) context.getResources().getDimension(R.dimen.material_text_caption))
+                .textSize((int) getContext().getResources().getDimension(R.dimen.material_text_caption))
                 .style(Typeface.BOLD)
                 .textColor(getResources().getColor(R.color.backgr1))
                 .build()
         );
 
         textView.addPiece(new BabushkaText.Piece.Builder(text)
-                .textSize((int) context.getResources().getDimension(R.dimen.material_text_body1))
+                .textSize((int) getContext().getResources().getDimension(R.dimen.material_text_body1))
                 .textColor(Color.WHITE)
                 .build()
         );
@@ -246,21 +248,23 @@ public class ArrivalsFragment extends Fragment {
         } catch (NoSuchAlgorithmException e) {
             return;
         }
-        if (context != null) {
-            context.runOnUiThread(new Runnable() {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     swipeRefreshLayout.setRefreshing(true);
                 }
             });
         }
-        ((TransportApp) context.getApplication()).getApi().getArrival("getFirstArrivalToStop", ksid, count, "android", "envoy93", sha.toLowerCase()).enqueue(new ArrivalCallback() {
+        responseCall = ((TransportApp) getActivity().getApplication()).getApi().getArrival("getFirstArrivalToStop", ksid, count, "android", "envoy93", sha.toLowerCase());
+        responseCall.cancel();
+        responseCall.enqueue(new ArrivalCallback() {
             @Override
             protected void OnPost(final ArrayList<ArrivalTransport> arrival) {
                 transports.clear();
                 transports.addAll(arrival);
-                if (context != null) {
-                    context.runOnUiThread(new Runnable() {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             transportAdapter.getFilter().filter(filter.getFilterConstraint());
@@ -291,20 +295,15 @@ public class ArrivalsFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            this.context = (Activity) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement Activity");
-        }
+    public void onDestroy() {
+        responseCall.cancel();
+        super.onDestroy();
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        context = null;
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     @Override

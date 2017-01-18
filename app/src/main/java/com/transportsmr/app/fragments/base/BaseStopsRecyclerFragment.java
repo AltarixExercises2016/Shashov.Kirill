@@ -1,6 +1,5 @@
 package com.transportsmr.app.fragments.base;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,9 +11,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import com.transportsmr.app.R;
 import com.transportsmr.app.adapters.StopsRecyclerAdapter;
+import com.transportsmr.app.events.FavoriteUpdateEvent;
 import com.transportsmr.app.utils.Constants;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,20 +32,22 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
     private int distance;
     private ArrayList<StopsRecyclerAdapter.StopWithDirections> stopsList;
     private StopsRecyclerAdapter recyclerAdapter;
-    private Activity context;
-    private RecyclerView recyclerView;
     private Parcelable listState;
     private final String LIST_STATE_KEY = "list";
+    private Unbinder unbinder;
+    @BindView(R.id.refresh)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.rv_items)
+    RecyclerView recyclerView;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        context = getActivity();
-        SharedPreferences sPref = context.getApplication().getSharedPreferences(Constants.SHARED_NAME, Context.MODE_PRIVATE);
+        EventBus.getDefault().register(this);
+        SharedPreferences sPref = getContext().getSharedPreferences(Constants.SHARED_NAME, Context.MODE_PRIVATE);
         distance = sPref.getInt(Constants.SHARED_DISTANCE_SEARCH_STOPS, Constants.DEFAULT_DISTANCE);
         stopsList = new ArrayList<>();
-        recyclerAdapter = new StopsRecyclerAdapter(context, stopsList); //new StopsRecyclerAdapter(this.context, this, stopsList);
+        recyclerAdapter = new StopsRecyclerAdapter(getContext(), stopsList); //new StopsRecyclerAdapter(this.context, this, stopsList);
         initRecyclerAdapter(recyclerAdapter);
         if (savedInstanceState != null) {
             listState = savedInstanceState.getParcelable(LIST_STATE_KEY);
@@ -51,15 +59,14 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
 
     protected abstract List<StopsRecyclerAdapter.StopWithDirections> getStops();
 
-
-    public abstract void onFavoriteChanged();
+    @Subscribe(threadMode = ThreadMode.MAIN, priority = 2)
+    public abstract void onChangeFavorite(FavoriteUpdateEvent event);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_stops_pager, container, false);
-        recyclerView = (RecyclerView) layout.findViewById(R.id.rvItems);
-        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) layout.findViewById(R.id.refresh);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        unbinder = ButterKnife.bind(this, layout);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(recyclerAdapter);
 
@@ -89,21 +96,23 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
                 updateAdapterInUiThread(stops);
 
                 if (postExecute != null) {
-                    context.runOnUiThread(postExecute);
+                    getActivity().runOnUiThread(postExecute);
                 }
             }
         })).start();
     }
 
     private void updateAdapterInUiThread(final List<StopsRecyclerAdapter.StopWithDirections> source) {
-        context.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                stopsList.clear();
-                stopsList.addAll(source);
-                recyclerAdapter.notifyDataSetChanged();
-            }
-        });
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    stopsList.clear();
+                    stopsList.addAll(source);
+                    recyclerAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     public int getDistance() {
@@ -134,14 +143,16 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
         updateStops(new Runnable() {
             @Override
             public void run() {
-                context.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (listState != null) {
-                            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (listState != null) {
+                                recyclerView.getLayoutManager().onRestoreInstanceState(listState);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         });
     }
@@ -152,5 +163,17 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
         if (recyclerView != null) {
             listState = recyclerView.getLayoutManager().onSaveInstanceState();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

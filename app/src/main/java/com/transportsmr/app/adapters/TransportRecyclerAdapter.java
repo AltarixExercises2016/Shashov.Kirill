@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
 import com.transportsmr.app.model.ArrivalTransport;
@@ -174,19 +176,20 @@ public class TransportRecyclerAdapter extends RecyclerView.Adapter<TransportRecy
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private BabushkaText header;
-        private TextView nextStop;
-        private TextView number;
-        private BabushkaText nextTime;
-        private BabushkaText nextTimeCommercial;
+        @BindView(R.id.transport_time_type)
+        BabushkaText header;
+        @BindView(R.id.transport_next_stop)
+        TextView nextStop;
+        @BindView(R.id.transport_number)
+        TextView number;
+        @BindView(R.id.transport_next_time)
+        BabushkaText nextTime;
+        @BindView(R.id.transport_next_time_commercial)
+        BabushkaText nextTimeCommercial;
 
         public ViewHolder(View v) {
             super(v);
-            number = (TextView) v.findViewById(R.id.transport_number);
-            nextTime = (BabushkaText) v.findViewById(R.id.transport_next_time);
-            header = (BabushkaText) v.findViewById(R.id.transport_time_type);
-            nextStop = (TextView) v.findViewById(R.id.transport_next_stop);
-            nextTimeCommercial = (BabushkaText) v.findViewById(R.id.transport_next_time_commercial);
+            ButterKnife.bind(this, v);
         }
 
     }

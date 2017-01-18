@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FilterQueryProvider;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.transportsmr.app.adapters.SearchAdapter;
 import com.transportsmr.app.events.FavoriteUpdateEvent;
 import com.transportsmr.app.events.StopClickEvent;
@@ -36,7 +38,6 @@ import java.io.Serializable;
 public class MainActivity extends AppCompatActivity {
     public static final String CURRENT_TITLE_KEY = "title";
     private TransportApp app;
-    private DrawerLayout drawerLayout;
     private static final String FRAGMENT_RIGHT = "FRAGMENT_RIGHT";
     private static final String FRAGMENT_LEFT = "FRAGMENT_LEFT";
     private static final String LAST_FRAGMENT_KEY = "LAST_FRAGMENT_KEY";
@@ -44,19 +45,23 @@ public class MainActivity extends AppCompatActivity {
     private static final String LAST_ARRIVAL_FILTER_KEY = "LAST_ARRIVAL_FILTER_KEY";
     private String lastContainerKey;
     private String lastArrival = "";
-    private NavigationView navView;
     private Serializable arrivalFilter;
     private SearchAdapter searchAdapter;
-    private SearchView searchBox;
+
+    @BindView(R.id.navigation_drawer)
+    DrawerLayout drawerLayout;
+    SearchView searchBox;
+    @BindView(R.id.navigation)
+    NavigationView navView;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getResources().getIdentifier("main_layout", "layout", getPackageName())); //R.layout.activity_main));
-
+        ButterKnife.bind(this);
         app = (TransportApp) getApplication();
-        //AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -71,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -124,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initNavigationView() {
-        navView = (NavigationView) findViewById(R.id.navigation);
         navView.setItemIconTintList(null);
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override

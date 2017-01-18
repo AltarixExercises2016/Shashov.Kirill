@@ -11,6 +11,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import com.transportsmr.app.R;
 import com.transportsmr.app.utils.Constants;
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
@@ -20,6 +23,12 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
  */
 public class SettingsFragment extends Fragment {
     private SharedPreferences sPref;
+    private Unbinder unbinder;
+
+    @BindView(R.id.distance_seekbar)
+    DiscreteSeekBar distanceSB;
+    @BindView(R.id.settings_commercial_spinner)
+    Spinner spinner;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,9 +40,9 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
-        DiscreteSeekBar distanceSB = (DiscreteSeekBar) view.findViewById(R.id.distanceSeekBar);
+        unbinder = ButterKnife.bind(this, view);
 
-
+        distanceSB.setProgress(sPref.getInt(Constants.SHARED_DISTANCE_SEARCH_STOPS, Constants.DEFAULT_DISTANCE));
         distanceSB.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
             @Override
             public void onProgressChanged(DiscreteSeekBar discreteSeekBar, int i, boolean b) {
@@ -44,18 +53,13 @@ public class SettingsFragment extends Fragment {
 
             @Override
             public void onStartTrackingTouch(DiscreteSeekBar discreteSeekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(DiscreteSeekBar discreteSeekBar) {
-
             }
         });
 
-        distanceSB.setProgress(sPref.getInt(Constants.SHARED_DISTANCE_SEARCH_STOPS, Constants.DEFAULT_DISTANCE));
-
-        Spinner spinner = (Spinner) view.findViewById(R.id.settings_commercial_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.settings_commercial_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setPrompt(getString(R.string.settings_commercial));
@@ -77,10 +81,9 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
-
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }
