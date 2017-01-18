@@ -65,3 +65,13 @@
 
 
 <img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/8.png" width="500">
+
+###18.01.2017
+* Добавлена первоначальная интеграция к библиотекой `Butter Knife`
+* На экране прибытия добавлен раскрывающийся блок с информацией о маршрутах на данной остановке. Исполдьзовалась библиотека https://github.com/AAkira/ExpandableLayout
+* Добавлена настройка отображения коммерческих автобусов на экране прибытия
+* На сплеш экране добавлена "крутилка". Библиотека https://github.com/yankai-victor/Loading
+
+
+<img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/9.png" width="250">
+<img src="https://github.com/AltarixExercises2016/Shashov.Kirill/blob/master/img/10.png" width="250">
