@@ -96,7 +96,9 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
                 updateAdapterInUiThread(stops);
 
                 if (postExecute != null) {
-                    getActivity().runOnUiThread(postExecute);
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(postExecute);
+                    }
                 }
             }
         })).start();

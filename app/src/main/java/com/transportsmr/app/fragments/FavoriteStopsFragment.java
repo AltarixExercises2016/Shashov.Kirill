@@ -22,10 +22,18 @@ public class FavoriteStopsFragment extends BaseStopsRecyclerFragment {
     protected List<StopsRecyclerAdapter.StopWithDirections> getStops() {
         List<StopsRecyclerAdapter.StopWithDirections> directionsList = new ArrayList<>();
         TransportApp app = (TransportApp) getActivity().getApplication();
-        List<Stop> stops = app.getDaoSession().getStopDao().queryBuilder().where(StopDao.Properties.Favorite.eq(true), new WhereCondition.StringCondition("1 GROUP BY TITLE, ADJACENT_STREET")).list();
+        List<Stop> stops = app.getDaoSession()
+                .getStopDao()
+                .queryBuilder()
+                .where(StopDao.Properties.Favorite.eq(true), new WhereCondition.StringCondition("1 GROUP BY TITLE, ADJACENT_STREET"))
+                .list();
 
         for (Stop stop : stops) {
-            List<Stop> stopsDirections = app.getDaoSession().getStopDao().queryBuilder().where(StopDao.Properties.Favorite.eq(true), StopDao.Properties.AdjacentStreet.eq(stop.getAdjacentStreet()), StopDao.Properties.Title.eq(stop.getTitle())).list();
+            List<Stop> stopsDirections = app.getDaoSession()
+                    .getStopDao()
+                    .queryBuilder()
+                    .where(StopDao.Properties.Favorite.eq(true), StopDao.Properties.AdjacentStreet.eq(stop.getAdjacentStreet()), StopDao.Properties.Title.eq(stop.getTitle()))
+                    .list();
             if (stopsDirections.size() > 0) {
                 directionsList.add(new StopsRecyclerAdapter.StopWithDirections(stop.getTitle(), stop.getAdjacentStreet(), -1, stopsDirections));
             }

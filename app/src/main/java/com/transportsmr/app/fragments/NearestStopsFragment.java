@@ -25,10 +25,18 @@ public class NearestStopsFragment extends BaseStopsRecyclerFragment {
         List<StopsRecyclerAdapter.StopWithDirections> directionsList = new ArrayList<>();
         TransportApp app = (TransportApp) getActivity().getApplication();
         Location location = app.getCurrentLocation();
-        List<Stop> stops = app.getDaoSession().getStopDao().queryBuilder().where(new WhereCondition.StringCondition("1 GROUP BY TITLE, ADJACENT_STREET")).list();
+        List<Stop> stops = app.getDaoSession()
+                .getStopDao()
+                .queryBuilder()
+                .where(new WhereCondition.StringCondition("1 GROUP BY TITLE, ADJACENT_STREET"))
+                .list();
 
         for (Stop stop : stops) {
-            List<Stop> stopsDirections = app.getDaoSession().getStopDao().queryBuilder().where(StopDao.Properties.AdjacentStreet.eq(stop.getAdjacentStreet()), StopDao.Properties.Title.eq(stop.getTitle())).list();
+            List<Stop> stopsDirections = app.getDaoSession()
+                    .getStopDao()
+                    .queryBuilder()
+                    .where(StopDao.Properties.AdjacentStreet.eq(stop.getAdjacentStreet()), StopDao.Properties.Title.eq(stop.getTitle()))
+                    .list();
             if (location == null) {
                 directionsList.add(new StopsRecyclerAdapter.StopWithDirections(stop.getTitle(), stop.getAdjacentStreet(), -1, stopsDirections));
             } else {
@@ -38,7 +46,6 @@ public class NearestStopsFragment extends BaseStopsRecyclerFragment {
                     Location.distanceBetween(direction.getLatitude(), direction.getLongitude(), location.getLatitude(), location.getLongitude(), distance);
                     if (minDistance > distance[0]) {
                         minDistance = distance[0];
-                        break;
                     }
                 }
                 if (minDistance <= getDistance()) {
