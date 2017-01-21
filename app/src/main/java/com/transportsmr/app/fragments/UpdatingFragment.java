@@ -40,6 +40,7 @@ public class UpdatingFragment extends Fragment {
 
     public void onFinishUpdating(boolean isSuccessful, Map<String, String> lastUpdateMap) {
         listener.onFinishUpdating(isSuccessful);
+        if (isSuccessful) updateUpdateTime(lastUpdateMap);
         //if (isSuccessful) updateUpdateTime(lastUpdateMap); TODO delete comment
     }
 

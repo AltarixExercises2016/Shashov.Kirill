@@ -19,6 +19,8 @@ import com.transportsmr.app.fragments.base.BaseStopsRecyclerFragment;
 
 public class StopsFragment extends Fragment {
     private StopsPagerAdapter stopsPagerAdapter;
+    private BaseStopsRecyclerFragment nearestStopsFragment;
+    private BaseStopsRecyclerFragment favoriteStopsFragment;
     private Unbinder unbinder;
 
     @BindView(R.id.viewpager)
@@ -32,7 +34,24 @@ public class StopsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        stopsPagerAdapter = new StopsPagerAdapter(getChildFragmentManager(), getActivity().getApplication());
+        stopsPagerAdapter = new StopsPagerAdapter(getChildFragmentManager(), getActivity().getApplication(), this);
+        nearestStopsFragment = new NearestStopsFragment();
+        favoriteStopsFragment = new FavoriteStopsFragment();
+        //setRetainInstance(true); TODO fix retain fragment :(
+    }
+
+    public BaseStopsRecyclerFragment getNearestStopsFragment() {
+        if (nearestStopsFragment != null) {
+            nearestStopsFragment = new NearestStopsFragment();
+        }
+        return nearestStopsFragment;
+    }
+
+    public BaseStopsRecyclerFragment getFavoriteStopsFragment() {
+        if (favoriteStopsFragment != null) {
+            favoriteStopsFragment = new FavoriteStopsFragment();
+        }
+        return favoriteStopsFragment;
     }
 
     @Override
@@ -56,28 +75,24 @@ public class StopsFragment extends Fragment {
     public static class StopsPagerAdapter extends FragmentPagerAdapter {
         public static final int NEAREST_TAB_POSITION = 0;
         private final Application app;
-        private BaseStopsRecyclerFragment favoriteFragment;
-        private BaseStopsRecyclerFragment nearestFragment;
+        private final StopsFragment stopsFragment;
 
-        public StopsPagerAdapter(FragmentManager fm, Application app) {
+        public StopsPagerAdapter(FragmentManager fm, Application app, StopsFragment stopsFragment) {
             super(fm);
             this.app = app;
+            this.stopsFragment = stopsFragment;
         }
 
         @Override
         public Fragment getItem(int position) {
             return (position == NEAREST_TAB_POSITION) ?
-                    (nearestFragment = new NearestStopsFragment())
-                    : (favoriteFragment = new FavoriteStopsFragment());
+                    stopsFragment.getNearestStopsFragment()
+                    : stopsFragment.getFavoriteStopsFragment();
         }
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             BaseStopsRecyclerFragment fragment = (BaseStopsRecyclerFragment) super.instantiateItem(container, position);
-            if (position == NEAREST_TAB_POSITION)
-                nearestFragment = fragment;
-            else
-                favoriteFragment = fragment;
             return fragment;
         }
 

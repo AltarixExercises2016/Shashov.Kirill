@@ -29,6 +29,8 @@
     <string name="bus_special">Специальный автобус</string>
     <string name="allbus">Автобус</string>
     <string name="no_data_available">Информация о прибытии отсутствует</string>
+    <string name="autoRefreshFailed">Автообновление списка не запущено</string>
+
 
     <!--settings-->
     <string name="settings_distance">Радиус поиска остановок в метрах:</string>

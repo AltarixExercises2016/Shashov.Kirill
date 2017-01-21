@@ -46,7 +46,6 @@ public abstract class ArrivalCallback implements Callback<ToSamaraApi.ArrivalRes
 
     @Override
     public void onFailure(Call<ToSamaraApi.ArrivalResponse> call, Throwable t) {
-        //TODO
         OnPost(arrival);
     }
 

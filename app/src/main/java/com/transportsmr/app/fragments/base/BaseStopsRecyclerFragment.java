@@ -43,7 +43,6 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
         SharedPreferences sPref = getContext().getSharedPreferences(Constants.SHARED_NAME, Context.MODE_PRIVATE);
         distance = sPref.getInt(Constants.SHARED_DISTANCE_SEARCH_STOPS, Constants.DEFAULT_DISTANCE);
         stopsList = new ArrayList<>();
@@ -76,7 +75,9 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
                 updateStops(new Runnable() {
                     @Override
                     public void run() {
-                        swipeRefreshLayout.setRefreshing(false);
+                        if (swipeRefreshLayout != null) {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
                     }
                 });
             }
@@ -109,9 +110,11 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    stopsList.clear();
-                    stopsList.addAll(source);
-                    recyclerAdapter.notifyDataSetChanged();
+                    if (stopsList != null) {
+                        stopsList.clear();
+                        stopsList.addAll(source);
+                        recyclerAdapter.notifyDataSetChanged();
+                    }
                 }
             });
         }
@@ -139,9 +142,13 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
 
+        if (stopsList.size() > 0) { // for example, click back button from arrival fragment
+            return;
+        }
         updateStops(new Runnable() {
             @Override
             public void run() {
@@ -149,7 +156,7 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (listState != null) {
+                            if ((listState != null) && (recyclerView != null)) {
                                 recyclerView.getLayoutManager().onRestoreInstanceState(listState);
                             }
                         }
@@ -160,17 +167,12 @@ public abstract class BaseStopsRecyclerFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
         if (recyclerView != null) {
             listState = recyclerView.getLayoutManager().onSaveInstanceState();
         }
-    }
-
-    @Override
-    public void onDestroy() {
         EventBus.getDefault().unregister(this);
-        super.onDestroy();
+        super.onStop();
     }
 
     @Override

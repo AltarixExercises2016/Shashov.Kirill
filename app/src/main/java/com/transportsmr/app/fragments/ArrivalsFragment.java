@@ -12,10 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageSwitcher;
-import android.widget.TextView;
+import android.widget.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -176,7 +173,7 @@ public class ArrivalsFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 filter.getFiltersMap().put(filterKey, isChecked);
-                updateArrival(stop.getKs_id()); //TODO update
+                updateArrival(stop.getKs_id());
             }
         });
     }
@@ -233,7 +230,7 @@ public class ArrivalsFragment extends Fragment {
             };
             timer.schedule(timerTask, Constants.UPDATE_TRANSPORT_DELAY, Constants.UPDATE_TRANSPORT_DELAY);
         } catch (IllegalStateException e) {
-            //TODO
+            Toast.makeText(getContext(), getString(R.string.autoRefreshFailed), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -257,7 +254,6 @@ public class ArrivalsFragment extends Fragment {
             });
         }
         responseCall = ((TransportApp) getActivity().getApplication()).getApi().getArrival("getFirstArrivalToStop", ksid, count, "android", "envoy93", sha.toLowerCase());
-        responseCall.cancel();
         responseCall.enqueue(new ArrivalCallback() {
             @Override
             protected void OnPost(final ArrayList<ArrivalTransport> arrival) {
@@ -267,9 +263,11 @@ public class ArrivalsFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            transportAdapter.getFilter().filter(filter.getFilterConstraint());
-                            swipeRefreshLayout.setRefreshing(false);
-                            emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
+                            if (swipeRefreshLayout != null) {
+                                transportAdapter.getFilter().filter(filter.getFilterConstraint());
+                                swipeRefreshLayout.setRefreshing(false);
+                                emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
+                            }
                         }
                     });
                 }
@@ -295,12 +293,6 @@ public class ArrivalsFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        responseCall.cancel();
-        super.onDestroy();
-    }
-
-    @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
@@ -309,17 +301,32 @@ public class ArrivalsFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (filter != null) {
+            for (Map.Entry<String, Boolean> filterEntry : filter.getFiltersMap().entrySet()) {
+                outState.putBoolean(filterEntry.getKey(), filterEntry.getValue());
+            }
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        if (responseCall != null) {
+            responseCall.cancel();
+        }
         if (timer != null) {
             timer.cancel();
         }
         if (timerTask != null) {
             timerTask.cancel();
         }
-        if (filter != null) {
-            for (Map.Entry<String, Boolean> filterEntry : filter.getFiltersMap().entrySet()) {
-                outState.putBoolean(filterEntry.getKey(), filterEntry.getValue());
-            }
-        }
+        super.onStop();
     }
 
     public Serializable getFilter() {

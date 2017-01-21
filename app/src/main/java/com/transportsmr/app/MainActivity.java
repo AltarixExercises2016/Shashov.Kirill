@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         initNavigationView();
 
         if ((savedInstanceState != null)) {
+            //TODO refactoring !!!
             String title = savedInstanceState.containsKey(CURRENT_TITLE_KEY) ? savedInstanceState.getString(CURRENT_TITLE_KEY) : null;
             lastArrival = savedInstanceState.containsKey(LAST_ARRIVAL_KEY) ? savedInstanceState.getString(LAST_ARRIVAL_KEY) : null;
             arrivalFilter = savedInstanceState.containsKey(LAST_ARRIVAL_FILTER_KEY) ? savedInstanceState.getSerializable(LAST_ARRIVAL_FILTER_KEY) : null;
@@ -116,8 +117,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         searchAdapter = new SearchAdapter(this, null, true);
-
-        EventBus.getDefault().register(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ActivityCompat.requestPermissions(this,
@@ -192,6 +191,12 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean hasTwoPanels() {
         return getResources().getBoolean(R.bool.has_two_panes);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
     }
 
     @Override
