@@ -41,8 +41,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class ArrivalsFragment extends Fragment {
-    private static final String STOP_KS_ID = "stopKsId";
-    private static final String FILTER_STATE = "FILTER_STATE";
+    public static final String STOP_KS_ID = "stopKsId";
+    public static final String FILTER_STATE = "FILTER_STATE";
     private List<ArrivalTransport> transports;
     private Stop stop;
     private TransportRecyclerAdapter transportAdapter;
@@ -51,6 +51,7 @@ public class ArrivalsFragment extends Fragment {
     private Filter filter;
     private Unbinder unbinder;
     private Call<ToSamaraApi.ArrivalResponse> responseCall;
+    private String stopKsId;
 
     @BindView(R.id.stop_direction_favorite)
     MaterialFavoriteButton fav;
@@ -66,6 +67,15 @@ public class ArrivalsFragment extends Fragment {
     TextView directionStreet;
     @BindView(R.id.stop_direction_direction)
     TextView directionDirection;
+    @BindView(R.id.info_switcher)
+    ImageSwitcher info_switcher;
+    @BindView(R.id.arrival_expandableLayout)
+    ExpandableLinearLayout expandableLinearLayout;
+    @BindView(R.id.filters)
+    TableLayout filters;
+    @BindView(R.id.empty_stop)
+    LinearLayout emptyStop;
+
 
     public static ArrivalsFragment newInstance(String stopKsId) {
         ArrivalsFragment fragment = new ArrivalsFragment();
@@ -96,35 +106,14 @@ public class ArrivalsFragment extends Fragment {
         filter = new Filter(this);
 
         if (getArguments() != null) {
-            String stopKsId = getArguments().getString(STOP_KS_ID);
-            StopDao stopDao = ((TransportApp) getActivity().getApplication()).getDaoSession().getStopDao();
-            stop = stopDao.queryBuilder().where(StopDao.Properties.Ks_id.eq(stopKsId)).list().get(0);
+            if (getArguments().containsKey(STOP_KS_ID)) {
+                stopKsId = getArguments().getString(STOP_KS_ID);
+            }
             if (getArguments().containsKey(FILTER_STATE)) {
                 filter = (Filter) getArguments().getSerializable(FILTER_STATE);
                 filter.setContext(this);
             }
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_arrivals, container, false);
-        unbinder = ButterKnife.bind(this, view);
-        directionTitle.setText(stop.getTitle());
-        directionStreet.setText(stop.getAdjacentStreet());
-        directionDirection.setText(stop.getDirection());
-        fav.setFavorite(stop.getFavorite(), false);
-        fav.setOnFavoriteChangeListener(new MaterialFavoriteButton.OnFavoriteChangeListener() {
-            @Override
-            public void onFavoriteChanged(MaterialFavoriteButton materialFavoriteButton, boolean b) {
-                EventBus.getDefault().post(new FavoriteUpdateEvent(stop, b));
-            }
-        });
-
-        transportRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        transportRecyclerView.setAdapter(transportAdapter);
-        transportRecyclerView.setNestedScrollingEnabled(false);
 
         if (savedInstanceState != null) {
             //filters
@@ -134,14 +123,32 @@ public class ArrivalsFragment extends Fragment {
                 }
             }
         }
+    }
 
-        initFilter(view, R.id.arrival_filter_bus, filter.SHOW_BUS);
-        initFilter(view, R.id.arrival_filter_tram, filter.SHOW_TRAM);
-        initFilter(view, R.id.arrival_filter_metro, filter.SHOW_METRO);
-        initFilter(view, R.id.arrival_filter_trolleybus, filter.SHOW_TROLLEYBUS);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_arrivals, container, false);
+        unbinder = ButterKnife.bind(this, view);
 
-        final ImageSwitcher info_switcher = (ImageSwitcher) view.findViewById(R.id.info_switcher);
-        final ExpandableLinearLayout expandableLinearLayout = (ExpandableLinearLayout) view.findViewById(R.id.arrival_expandableLayout);
+        transportRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        transportRecyclerView.setAdapter(transportAdapter);
+        transportRecyclerView.setNestedScrollingEnabled(false);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateArrival(stop.getKs_id());
+            }
+        });
+
+        fav.setOnFavoriteChangeListener(new MaterialFavoriteButton.OnFavoriteChangeListener() {
+            @Override
+            public void onFavoriteChanged(MaterialFavoriteButton materialFavoriteButton, boolean b) {
+                EventBus.getDefault().post(new FavoriteUpdateEvent(stop, b));
+            }
+        });
+
         info_switcher.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -153,17 +160,50 @@ public class ArrivalsFragment extends Fragment {
                 info_switcher.showNext();
             }
         });
-
-        initTransportList(view, R.id.arrival_buses_municipal, stop.getBusesMunicipal(), getString(R.string.bus_municipal));
-        initTransportList(view, R.id.arrival_buses_commercial, stop.getBusesCommercial(), getString(R.string.bus_commercial));
-        initTransportList(view, R.id.arrival_buses_prigorod, stop.getBusesPrigorod(), getString(R.string.bus_prigorod));
-        initTransportList(view, R.id.arrival_buses_season, stop.getBusesSeason(), getString(R.string.bus_season));
-        initTransportList(view, R.id.arrival_buses_special, stop.getBusesSpecial(), getString(R.string.bus_special));
-        initTransportList(view, R.id.arrival_trams, stop.getTrams(), getString(R.string.tram));
-        initTransportList(view, R.id.arrival_trolleybuses, stop.getTrolleybuses(), getString(R.string.troll));
-        initTransportList(view, R.id.arrival_metros, stop.getMetros(), getString(R.string.metro));
-
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        openStop(stopKsId);
+    }
+
+    public void openStop(String stopKsId) {
+        if (stopKsId == null) {
+            swipeRefreshLayout.setVisibility(View.GONE);
+            filters.setVisibility(View.GONE);
+            emptyStop.setVisibility(View.VISIBLE);
+            return;
+        } else {
+            swipeRefreshLayout.setVisibility(View.VISIBLE);
+            filters.setVisibility(View.VISIBLE);
+            emptyStop.setVisibility(View.GONE);
+        }
+        stopTasks();
+        StopDao stopDao = ((TransportApp) getActivity().getApplication()).getDaoSession().getStopDao();
+        stop = stopDao.queryBuilder().where(StopDao.Properties.Ks_id.eq(stopKsId)).list().get(0);
+        directionTitle.setText(stop.getTitle());
+        directionStreet.setText(stop.getAdjacentStreet());
+        directionDirection.setText(stop.getDirection());
+        fav.setFavorite(stop.getFavorite(), false);
+
+        initTransportList(getView(), R.id.arrival_buses_municipal, stop.getBusesMunicipal(), getString(R.string.bus_municipal));
+        initTransportList(getView(), R.id.arrival_buses_commercial, stop.getBusesCommercial(), getString(R.string.bus_commercial));
+        initTransportList(getView(), R.id.arrival_buses_prigorod, stop.getBusesPrigorod(), getString(R.string.bus_prigorod));
+        initTransportList(getView(), R.id.arrival_buses_season, stop.getBusesSeason(), getString(R.string.bus_season));
+        initTransportList(getView(), R.id.arrival_buses_special, stop.getBusesSpecial(), getString(R.string.bus_special));
+        initTransportList(getView(), R.id.arrival_trams, stop.getTrams(), getString(R.string.tram));
+        initTransportList(getView(), R.id.arrival_trolleybuses, stop.getTrolleybuses(), getString(R.string.troll));
+        initTransportList(getView(), R.id.arrival_metros, stop.getMetros(), getString(R.string.metro));
+
+        initFilter(getView(), R.id.arrival_filter_bus, filter.SHOW_BUS);
+        initFilter(getView(), R.id.arrival_filter_tram, filter.SHOW_TRAM);
+        initFilter(getView(), R.id.arrival_filter_metro, filter.SHOW_METRO);
+        initFilter(getView(), R.id.arrival_filter_trolleybus, filter.SHOW_TROLLEYBUS);
+
+        expandableLinearLayout.initLayout();
+        startTasks();
     }
 
     private void initFilter(View layout, int filterViewId, final String filterKey) {
@@ -173,18 +213,6 @@ public class ArrivalsFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 filter.getFiltersMap().put(filterKey, isChecked);
-                updateArrival(stop.getKs_id());
-            }
-        });
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                updateArrival(stop.getKs_id());
             }
         });
     }
@@ -213,27 +241,6 @@ public class ArrivalsFragment extends Fragment {
         textView.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (transports.isEmpty()) {
-            updateArrival(stop.getKs_id());
-        }
-
-        try {
-            timer = new Timer();
-            timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    updateArrival(stop.getKs_id());
-                }
-            };
-            timer.schedule(timerTask, Constants.UPDATE_TRANSPORT_DELAY, Constants.UPDATE_TRANSPORT_DELAY);
-        } catch (IllegalStateException e) {
-            Toast.makeText(getContext(), getString(R.string.autoRefreshFailed), Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void updateArrival(String ksid) {
         updateArrival(ksid, 30);
     }
@@ -249,30 +256,32 @@ public class ArrivalsFragment extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    swipeRefreshLayout.setRefreshing(true);
+                    if (swipeRefreshLayout != null) {
+                        swipeRefreshLayout.setRefreshing(true);
+                    }
+                }
+            });
+            responseCall = ((TransportApp) getActivity().getApplication()).getApi().getArrival("getFirstArrivalToStop", ksid, count, "android", "envoy93", sha.toLowerCase());
+            responseCall.enqueue(new ArrivalCallback() {
+                @Override
+                protected void OnPost(final ArrayList<ArrivalTransport> arrival) {
+                    transports.clear();
+                    transports.addAll(arrival);
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (swipeRefreshLayout != null) {
+                                    transportAdapter.getFilter().filter(filter.getFilterConstraint());
+                                    swipeRefreshLayout.setRefreshing(false);
+                                    emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
+                                }
+                            }
+                        });
+                    }
                 }
             });
         }
-        responseCall = ((TransportApp) getActivity().getApplication()).getApi().getArrival("getFirstArrivalToStop", ksid, count, "android", "envoy93", sha.toLowerCase());
-        responseCall.enqueue(new ArrivalCallback() {
-            @Override
-            protected void OnPost(final ArrayList<ArrivalTransport> arrival) {
-                transports.clear();
-                transports.addAll(arrival);
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (swipeRefreshLayout != null) {
-                                transportAdapter.getFilter().filter(filter.getFilterConstraint());
-                                swipeRefreshLayout.setRefreshing(false);
-                                emptyView.setVisibility(arrival.isEmpty() ? View.VISIBLE : View.GONE);
-                            }
-                        }
-                    });
-                }
-            }
-        });
     }
 
     private String sha1(String s) throws NoSuchAlgorithmException {
@@ -312,11 +321,36 @@ public class ArrivalsFragment extends Fragment {
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        //startTasks();
+    }
+
+    private void startTasks() {
+        if (transports.isEmpty()) {
+            updateArrival(stop.getKs_id());
+        }
+
+        try {
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    updateArrival(stop.getKs_id());
+                }
+            };
+            timer.schedule(timerTask, Constants.UPDATE_TRANSPORT_DELAY, Constants.UPDATE_TRANSPORT_DELAY);
+        } catch (IllegalStateException e) {
+            Toast.makeText(getContext(), getString(R.string.autoRefreshFailed), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void onStop() {
         EventBus.getDefault().unregister(this);
+        stopTasks();
+        super.onStop();
+    }
+
+    private void stopTasks() {
         if (responseCall != null) {
             responseCall.cancel();
         }
@@ -326,7 +360,6 @@ public class ArrivalsFragment extends Fragment {
         if (timerTask != null) {
             timerTask.cancel();
         }
-        super.onStop();
     }
 
     public Serializable getFilter() {

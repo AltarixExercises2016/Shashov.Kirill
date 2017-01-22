@@ -253,4 +253,19 @@
                 android:button="@drawable/metro_button"/>
         </TableRow>
     </TableLayout>
+
+    <LinearLayout
+        android:id="@+id/empty_stop"
+        android:orientation="vertical"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:src="@drawable/ic_menu_stop"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"/>
+    </LinearLayout>
 </RelativeLayout>

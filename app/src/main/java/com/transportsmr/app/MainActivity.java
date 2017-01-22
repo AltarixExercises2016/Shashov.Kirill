@@ -89,30 +89,37 @@ public class MainActivity extends AppCompatActivity {
             arrivalFilter = savedInstanceState.containsKey(LAST_ARRIVAL_FILTER_KEY) ? savedInstanceState.getSerializable(LAST_ARRIVAL_FILTER_KEY) : null;
             if (hasTwoPanels()) {
                 Fragment left = getSupportFragmentManager().findFragmentByTag(FRAGMENT_LEFT);
-                Fragment right = getSupportFragmentManager().findFragmentByTag(FRAGMENT_RIGHT);
-
                 if (left != null) {
-                    openFragment(left, title, false);
-                } else {
-                    openStops();
+                    openFragment(left, title);
                 }
-                if (right != null && (right instanceof ArrivalsFragment)) {
-                    openFragment(ArrivalsFragment.newInstance(lastArrival, arrivalFilter), title, true);
+
+                if (lastArrival != null) {
+                    ArrivalsFragment arrivalsFragment = (ArrivalsFragment) getSupportFragmentManager().findFragmentById(R.id.containerRight);
+                    if (arrivalsFragment != null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(ArrivalsFragment.STOP_KS_ID, lastArrival);
+                        //arrivalsFragment.setArguments(bundle);
+                    }
+                    if (arrivalFilter != null) {
+                        //TODO add filter
+                    }
                 }
             } else {
-                lastContainerKey = savedInstanceState.getString(LAST_FRAGMENT_KEY);
-                Fragment lastFragment = getSupportFragmentManager().findFragmentByTag(lastContainerKey);
+                lastContainerKey = (savedInstanceState.containsKey(LAST_FRAGMENT_KEY)) ? savedInstanceState.getString(LAST_FRAGMENT_KEY) : FRAGMENT_LEFT;
+                Fragment lastFragment;
+                if (lastContainerKey.equals(FRAGMENT_RIGHT)) {
+                    lastFragment = ArrivalsFragment.newInstance(lastArrival, arrivalFilter);
+                } else {
+                    lastFragment = getSupportFragmentManager().findFragmentByTag(lastContainerKey);
+                }
 
                 if (lastFragment != null) {
-                    if (lastFragment instanceof ArrivalsFragment) {
-                        lastFragment = ArrivalsFragment.newInstance(lastArrival, arrivalFilter);
-                    }
-                    openFragment(lastFragment, title, false);
-                } else {
-                    openStops();
+                    openFragment(lastFragment, title);
                 }
             }
-        } else {
+        }
+
+        if (getSupportFragmentManager().findFragmentById(R.id.container) == null) {
             openStops();
         }
 
@@ -143,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
                 if (fragment != null) {
-                    openFragment(fragment, getTitleForFragment(fragment), false);
+                    openFragment(fragment, getTitleForFragment(fragment));
                     drawerLayout.closeDrawers();
                     return true;
                 }
@@ -154,20 +161,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void openStops() {
         navView.setCheckedItem(R.id.stops);
-        openFragment(new StopsFragment(), getString(R.string.stops), false);
+        openFragment(new StopsFragment(), getString(R.string.stops));
     }
 
-    private void openFragment(Fragment fragment, String title, boolean isRightContainer) {
+    private void openFragment(Fragment fragment, String title) {
         if (title != null) {
             getSupportActionBar().setTitle(title);
         }
 
-        lastContainerKey = fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT;
-        getSupportFragmentManager().
-                beginTransaction().
-                replace(isRightContainer ? R.id.containerRight : R.id.container, fragment, fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT).
-                addToBackStack(null).
-                commit();
+        if (hasTwoPanels() && (fragment instanceof ArrivalsFragment)) {
+            return;
+        }
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container, fragment, lastContainerKey = (fragment instanceof ArrivalsFragment ? FRAGMENT_RIGHT : FRAGMENT_LEFT))
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
@@ -175,7 +185,13 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(CURRENT_TITLE_KEY, String.valueOf(getSupportActionBar().getTitle()));
         outState.putString(LAST_FRAGMENT_KEY, lastContainerKey);
         outState.putString(LAST_ARRIVAL_KEY, lastArrival);
-        Fragment arrivals = getSupportFragmentManager().findFragmentByTag(FRAGMENT_RIGHT);
+
+        ArrivalsFragment arrivals;
+        if (hasTwoPanels()) {
+            arrivals = (ArrivalsFragment) getSupportFragmentManager().findFragmentById(R.id.containerRight);
+        } else {
+            arrivals = (ArrivalsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_RIGHT);
+        }
         if (arrivals != null) {
             if (((ArrivalsFragment) arrivals).getFilter() != null)
                 outState.putSerializable(LAST_ARRIVAL_FILTER_KEY, ((ArrivalsFragment) arrivals).getFilter());
@@ -185,8 +201,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onStopClick(StopClickEvent event) {
-        ArrivalsFragment fragment = ArrivalsFragment.newInstance(lastArrival = event.stop.getKs_id());
-        openFragment(fragment, event.stop.getTitle(), hasTwoPanels());
+        if (hasTwoPanels()) {
+            ArrivalsFragment fragment = (ArrivalsFragment) getSupportFragmentManager().findFragmentById(R.id.containerRight);
+            if (fragment != null) {
+                fragment.openStop(event.stop.getKs_id());
+                lastContainerKey = FRAGMENT_RIGHT;
+                getSupportActionBar().setTitle(event.stop.getTitle());
+            }
+        } else {
+            ArrivalsFragment fragment = ArrivalsFragment.newInstance(lastArrival = event.stop.getKs_id());
+            openFragment(fragment, event.stop.getTitle());
+        }
     }
 
     private boolean hasTwoPanels() {
@@ -211,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
             if (lastContainerKey.equals(FRAGMENT_RIGHT)) {
                 Fragment newFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_LEFT);
                 if (newFragment != null) {
-                    openFragment(newFragment, getTitleForFragment(newFragment), false);
+                    openFragment(newFragment, getTitleForFragment(newFragment));
                     return;
                 }
             }
