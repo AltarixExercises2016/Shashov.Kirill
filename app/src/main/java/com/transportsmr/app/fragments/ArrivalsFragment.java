@@ -66,6 +66,10 @@ public class ArrivalsFragment extends Fragment {
     TextView directionStreet;
     @BindView(R.id.stop_direction_direction)
     TextView directionDirection;
+    @BindView(R.id.info_switcher)
+    ImageSwitcher info_switcher;
+    @BindView(R.id.arrival_expandableLayout)
+    ExpandableLinearLayout expandableLinearLayout;
 
     public static ArrivalsFragment newInstance(String stopKsId) {
         ArrivalsFragment fragment = new ArrivalsFragment();
@@ -96,9 +100,11 @@ public class ArrivalsFragment extends Fragment {
         filter = new Filter(this);
 
         if (getArguments() != null) {
-            String stopKsId = getArguments().getString(STOP_KS_ID);
-            StopDao stopDao = ((TransportApp) getActivity().getApplication()).getDaoSession().getStopDao();
-            stop = stopDao.queryBuilder().where(StopDao.Properties.Ks_id.eq(stopKsId)).list().get(0);
+            if (getArguments().containsKey(STOP_KS_ID)) {
+                String stopKsId = getArguments().getString(STOP_KS_ID);
+                StopDao stopDao = ((TransportApp) getActivity().getApplication()).getDaoSession().getStopDao();
+                stop = stopDao.queryBuilder().where(StopDao.Properties.Ks_id.eq(stopKsId)).list().get(0);
+            }
             if (getArguments().containsKey(FILTER_STATE)) {
                 filter = (Filter) getArguments().getSerializable(FILTER_STATE);
                 filter.setContext(this);
@@ -140,8 +146,8 @@ public class ArrivalsFragment extends Fragment {
         initFilter(view, R.id.arrival_filter_metro, filter.SHOW_METRO);
         initFilter(view, R.id.arrival_filter_trolleybus, filter.SHOW_TROLLEYBUS);
 
-        final ImageSwitcher info_switcher = (ImageSwitcher) view.findViewById(R.id.info_switcher);
-        final ExpandableLinearLayout expandableLinearLayout = (ExpandableLinearLayout) view.findViewById(R.id.arrival_expandableLayout);
+        info_switcher = (ImageSwitcher) view.findViewById(R.id.info_switcher);
+        expandableLinearLayout = (ExpandableLinearLayout) view.findViewById(R.id.arrival_expandableLayout);
         info_switcher.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -162,6 +168,8 @@ public class ArrivalsFragment extends Fragment {
         initTransportList(view, R.id.arrival_trams, stop.getTrams(), getString(R.string.tram));
         initTransportList(view, R.id.arrival_trolleybuses, stop.getTrolleybuses(), getString(R.string.troll));
         initTransportList(view, R.id.arrival_metros, stop.getMetros(), getString(R.string.metro));
+
+        expandableLinearLayout.initLayout();
 
         return view;
     }
@@ -213,27 +221,6 @@ public class ArrivalsFragment extends Fragment {
         textView.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (transports.isEmpty()) {
-            updateArrival(stop.getKs_id());
-        }
-
-        try {
-            timer = new Timer();
-            timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    updateArrival(stop.getKs_id());
-                }
-            };
-            timer.schedule(timerTask, Constants.UPDATE_TRANSPORT_DELAY, Constants.UPDATE_TRANSPORT_DELAY);
-        } catch (IllegalStateException e) {
-            Toast.makeText(getContext(), getString(R.string.autoRefreshFailed), Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void updateArrival(String ksid) {
         updateArrival(ksid, 30);
     }
@@ -245,14 +232,18 @@ public class ArrivalsFragment extends Fragment {
         } catch (NoSuchAlgorithmException e) {
             return;
         }
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
+        if (getActivity() == null) {
+            return;
+        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (swipeRefreshLayout != null) {
                     swipeRefreshLayout.setRefreshing(true);
                 }
-            });
-        }
+            }
+        });
+
         responseCall = ((TransportApp) getActivity().getApplication()).getApi().getArrival("getFirstArrivalToStop", ksid, count, "android", "envoy93", sha.toLowerCase());
         responseCall.enqueue(new ArrivalCallback() {
             @Override
@@ -312,6 +303,22 @@ public class ArrivalsFragment extends Fragment {
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        if (transports.isEmpty()) {
+            updateArrival(stop.getKs_id());
+        }
+
+        try {
+            timer = new Timer();
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    updateArrival(stop.getKs_id());
+                }
+            };
+            timer.schedule(timerTask, Constants.UPDATE_TRANSPORT_DELAY, Constants.UPDATE_TRANSPORT_DELAY);
+        } catch (IllegalStateException e) {
+            Toast.makeText(getContext(), getString(R.string.autoRefreshFailed), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
