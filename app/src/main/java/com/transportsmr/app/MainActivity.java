@@ -93,8 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
                 if (left != null) {
                     openFragment(left, title, false);
-                } else {
-                    openStops();
                 }
                 if (right != null && (right instanceof ArrivalsFragment)) {
                     openFragment(ArrivalsFragment.newInstance(lastArrival, arrivalFilter), title, true);
@@ -108,14 +106,12 @@ public class MainActivity extends AppCompatActivity {
                         lastFragment = ArrivalsFragment.newInstance(lastArrival, arrivalFilter);
                     }
                     openFragment(lastFragment, title, false);
-                } else {
-                    openStops();
                 }
             }
-        } else {
+        }
+        if (getSupportFragmentManager().findFragmentById(R.id.container) == null) {
             openStops();
         }
-
         searchAdapter = new SearchAdapter(this, null, true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

@@ -16,7 +16,6 @@ import android.widget.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.transportsmr.app.R;
 import com.transportsmr.app.TransportApp;
@@ -69,7 +68,7 @@ public class ArrivalsFragment extends Fragment {
     @BindView(R.id.info_switcher)
     ImageSwitcher info_switcher;
     @BindView(R.id.arrival_expandableLayout)
-    ExpandableLinearLayout expandableLinearLayout;
+    LinearLayout expandableLinearLayout;
 
     public static ArrivalsFragment newInstance(String stopKsId) {
         ArrivalsFragment fragment = new ArrivalsFragment();
@@ -146,15 +145,14 @@ public class ArrivalsFragment extends Fragment {
         initFilter(view, R.id.arrival_filter_metro, filter.SHOW_METRO);
         initFilter(view, R.id.arrival_filter_trolleybus, filter.SHOW_TROLLEYBUS);
 
-        info_switcher = (ImageSwitcher) view.findViewById(R.id.info_switcher);
-        expandableLinearLayout = (ExpandableLinearLayout) view.findViewById(R.id.arrival_expandableLayout);
         info_switcher.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (expandableLinearLayout.isExpanded()) {
-                    expandableLinearLayout.collapse();
+                //expandableLinearLayout.toggle();
+                if (expandableLinearLayout.getVisibility() == View.VISIBLE) {
+                    expandableLinearLayout.setVisibility(View.GONE);
                 } else {
-                    expandableLinearLayout.expand();
+                    expandableLinearLayout.setVisibility(View.VISIBLE);
                 }
                 info_switcher.showNext();
             }
@@ -168,8 +166,6 @@ public class ArrivalsFragment extends Fragment {
         initTransportList(view, R.id.arrival_trams, stop.getTrams(), getString(R.string.tram));
         initTransportList(view, R.id.arrival_trolleybuses, stop.getTrolleybuses(), getString(R.string.troll));
         initTransportList(view, R.id.arrival_metros, stop.getMetros(), getString(R.string.metro));
-
-        expandableLinearLayout.initLayout();
 
         return view;
     }
@@ -202,7 +198,10 @@ public class ArrivalsFragment extends Fragment {
         if ((text == null) || text.isEmpty()) {
             textView.setVisibility(View.GONE);
             return;
+        } else {
+            textView.setVisibility(View.VISIBLE);
         }
+
         textView.reset();
         textView.addPiece(new BabushkaText.Piece.Builder(label + "\n")
                 .textSize((int) getContext().getResources().getDimension(R.dimen.material_text_caption))
@@ -216,9 +215,7 @@ public class ArrivalsFragment extends Fragment {
                 .textColor(Color.WHITE)
                 .build()
         );
-
         textView.display();
-        textView.setVisibility(View.VISIBLE);
     }
 
     private void updateArrival(String ksid) {
